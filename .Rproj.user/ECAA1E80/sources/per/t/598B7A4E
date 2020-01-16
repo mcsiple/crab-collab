@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576795248979.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2636569469",
+    "id" : "598B7A4E",
+    "lastKnownWriteTime" : 1576795690,
+    "last_content_update" : 1576795690345,
+    "path" : "C:/Users/siplem/Dropbox/CrabCollab/VBgrowth.R",
+    "project_path" : "VBgrowth.R",
+    "properties" : {
+        "cursorPosition" : "29,36",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
