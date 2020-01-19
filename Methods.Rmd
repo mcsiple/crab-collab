@@ -20,14 +20,20 @@ The model was sampled from four chains with 1,000 post-warmup draws per chain, t
 
 ### Stage-based simulation model
 
-The simulation model used to test different fishery scenarios is a size-structured model with natural mortality estimated from crabs in He'eia fishpond and recruitment parameters based on literature values and estimates from the size structure of male and female crabs from the mark-recapture experiment. The numbers of sex $h$ in each year $y$ in the model are:
+The simulation model used to test different fishery scenarios is a size-structured model with natural mortality estimated from crabs in He'eia fishpond and recruitment parameters based on literature values and estimates from the size structure of male and female crabs from the mark-recapture experiment. The numbers of individuals of sex $h$ in each year $y$ in the model are:
 
 $$
-N_{y+1,h} = N_{y,h}*\textbf{A} + R_h
+\textbf{N}_{y+1,h} = \textbf{N}_{y,h}*\textbf{A}_h + \textbf{r}_{y,h}
 $$
-Where $\textbf{A}$ is a growth-survival matrix providing the probabilites that crabs in each stage will survive and remain in the same stage, or grow and advance into the next stage. $\textbf{A}$ is a product of the growth matrix $\textbf{G}$ and a function of natural mortality:
+Where $\textbf{A}$ is a growth-survival matrix providing the probabilites that crabs in each stage will survive and remain in the same stage, or grow and advance into the next stage. $\textbf{A}$ is a product of the growth matrix $\textbf{G}$ and sex-specific natural mortality $M_h$ :
+$$
+\textbf{A}_{h} = \textbf{G}_{h}[exp(-M_h)(\textbf{I}_n)]
+$$
+Where $\textbf{I}_n$ is an $n$x$n$ identity matrix. When the population is fished, the total mortality is used:
+$$
+\textbf{B}_{h} = \textbf{G}_{h}[exp(-M_h-\textbf{f}_{h,l})(\textbf{I}_n)]
+$$
 
-[insert eqn]
 
 ## Results
 
