@@ -12,14 +12,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Methods
 
 
-### Estimate of adult survival from tagging data
+### Estimate of adult survival
 
 Estimates of adult survival ($\phi_a$) and recapture probability ($p_a$) were estimated from mark-recapture data using a Cormack-Jolly-Seber (CJS) model [Cormack (1964); Jolly:1965; Seber:1965]. The CJS model assumes that the population is open and that the population size changes over time due to natural mortality. Mark and recapture data were divided into monthly sampling periods, such that every sampling month following the initial tagging (N = 112 individuals) was one time period. We assumed that parameters were constant, i.e., that survival probability did not change through time. Priors for each parameter were uniform between 0 and 1.
 
-The model was sampled from four chains with 1,000 post-warmup draws per chain, thinning every other iteration. The CJS model was implemented in Stan (cite). 
+The model was sampled from four chains with 1,000 post-warmup draws per chain, thinning every other iteration. The CJS model was implemented in Stan (cite).
 
+### Stage-based simulation model
+
+The simulation model used to test different fishery scenarios is a size-structured model with natural mortality estimated from crabs in He'eia fishpond and recruitment parameters based on literature values and estimates from the size structure of male and female crabs from the mark-recapture experiment. The numbers of sex $h$ in each year $y$ in the model are:
+
+$$
+N_{y+1,h} = N_{y,h}*\textbf{A} + R_h
+$$
+Where $\textbf{A}$ is a growth-survival matrix providing the probabilites that crabs in each stage will survive and remain in the same stage, or grow and advance into the next stage. $\textbf{A}$ is a product of the growth matrix $\textbf{G}$ and a function of natural mortality:
+
+[insert eqn]
 
 ## Results
 
-### Estimate of adult survival from tagging data
+### Estimate of adult survival
 The parameter $\phi_a$ is a survival rate per time period represented in the mark-recapture data. We estimated a survival rate of 0.966 [95% ci 0.889, 0.999] between each sampling period. This corresponds to a monthly survival rate of 0.947 or $M_{adult} = 0.054$ for the monthly time steps in the simulation model. We estimated a recapture probability of $p_a$ = 0.014 [0.011, 0.024]. 
