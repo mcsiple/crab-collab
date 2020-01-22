@@ -7,6 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(tidyverse)
+crabdat <- read.csv(here('Heeia_crabdata_Apr2019.csv'))
+
 ```
 
 ## Methods
@@ -18,18 +22,49 @@ Estimates of adult survival ($\phi_a$) and recapture probability ($p_a$) were es
 
 The model was sampled from four chains with 1,000 post-warmup draws per chain, thinning every other iteration. The CJS model was implemented in Stan (cite).
 
+### Estimate of population size
+Another formulation of the CJS model uses 
+
+### Estimate of fishery selectivity
+
+Hawai‘i state size restrictions for Samoan crab are XXX. In He'eia fishpond, the control rule used is that only males of carapace width YYY are kept. We estimated fishery selectivity from kept crabs surveyed during the mark-recapture experiment, using length compositions as in Nadon 2017 (cite). 
+
+$$
+S = \frac{1}{1+exp(-ln(19) \frac{L-L_{S50}}{L_{S95-LS10}})}
+$$
+where $L$ is the length at which selectivity is being estimated, $L_{S50}$ is the length at 50% selectivity, and $L_{S95}$ is the length at 95% selectivity. Following Nadon (2017), we used the discontinuous break in size composition of kept male crabs as the size at 95% selectivity ($L_{S95}$= 169 mm). 
+
+```{r, echo=FALSE, fig.width=8, fig.height=6,warning=FALSE}
+crabdat %>%
+  filter(!Sex %in% c("FJ","J","NM")
+         & !is.na(Sex)) %>%
+  ggplot(aes(x=CWid_LR_mm)) + 
+  geom_histogram(bins=30) +
+  geom_vline(xintercept = 139,
+             lty=2,
+             colour="red") +
+  facet_wrap(~Sex) +
+  theme_classic(base_size = 14) +
+  xlab("Carapace width (mm)") +
+  ylab("Count") +
+  ggtitle("Kept crabs (2018-2019)")
+```
+
+
 ### Stage-based simulation model
 
 The simulation model used to test different fishery scenarios is a size-structured model with natural mortality estimated from crabs in He'eia fishpond and recruitment parameters based on literature values and estimates from the size structure of male and female crabs from the mark-recapture experiment. The numbers of individuals of sex $h$ in each year $y$ in the model are:
 
 $$
-\textbf{N}_{y+1,h} = \textbf{N}_{y,h}*\textbf{A}_h + \textbf{r}_{y,h}
+\textbf{N}_{h,y+1} = \textbf{N}_{h,y}\textbf{A}_h + \textbf{r}_{h,y}
 $$
 Where $\textbf{A}$ is a growth-survival matrix providing the probabilites that crabs in each stage will survive and remain in the same stage, or grow and advance into the next stage. $\textbf{A}$ is a product of the growth matrix $\textbf{G}$ and sex-specific natural mortality $M_h$ :
 $$
 \textbf{A}_{h} = \textbf{G}_{h}[exp(-M_h)(\textbf{I}_n)]
 $$
-Where $\textbf{I}_n$ is an $n$x$n$ identity matrix. When the population is fished, the total mortality is used:
+Where $\textbf{I}_n$ is an $n$ x $n$ identity matrix. $\textbf{G}$ includes the probabilities that a crab in each stage will survive and grow to the next stage. 
+
+When the population is fished, the total mortality is used:
 $$
 \textbf{B}_{h} = \textbf{G}_{h}[exp(-M_h-\textbf{f}_{h,l})(\textbf{I}_n)]
 $$

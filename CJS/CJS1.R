@@ -3,7 +3,7 @@ library(here)
 library("rstan")
 
 # Load data
-y <- as.matrix(read.table("crabmat.txt"))
+y <- as.matrix(read.table("crabmat2.txt"))
 colnames(y) <- NULL
 nind <- nrow(y)
 n_occasions <- ncol(y)
