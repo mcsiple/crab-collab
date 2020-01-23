@@ -7,6 +7,7 @@ library(Rmisc)
 library(here)
 
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
+
 source(here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
 
 ## FUNCTION ESTIMATE.AGE - INTERNAL USE ONLY
@@ -27,7 +28,7 @@ estimate.age = function(size.bins, Linf, K, tZero, longevDraw){
 ## FUNCTION HOENIG - INTERNAL USE ONLY
 ## PURPOSE: calculates mh for use in natural mortality
 ## O'Neill MH is 0.277; calculated from Hoening 1983 (lnZ = a + b lnTmax) with max longevity = 16y & using the "all"
-#slope & intercept.
+# slope & intercept.
 ## For fish this value is 0.26.
 hoenig = function(hoenig.slope,hoenig.int,longevDraw){
   mh = exp(hoenig.int + hoenig.slope*log(longevDraw))
@@ -116,7 +117,7 @@ runBissect = function(Ulow,Uhigh,bissectIters,bissectConv,LeslieMat,tc)
 # Purpose: save list "OutLeslieMC" to txt files
 writeOutMC <- function(OutLeslieMC, Name)
 {
-  Path <- here("Maia code","outputs")
+  Path <- "outputs/"
   line = as.character(date()) ## include a timestamp
   ## special internal function for init list
   fnlist = function(x,fil){
@@ -146,8 +147,8 @@ writeOutMC <- function(OutLeslieMC, Name)
       risktable[t,h] = nrow(sub[sub$rVal < 0,])/nrow(sub)
     }
   }
-  write.table(risktable, paste(here("Maia code","outputs"), Name, "_risktable.txt", sep=''), sep=",", row.names=F) ##
- # write to file
+  write.table(risktable, paste('outputs/', Name, "_risktable.txt", sep=''), sep=",", row.names=F) ##
+  # write to file
 }
 # # FUNCTION: genRiskTable
 # # Purpose: calculate proportion of negative R values for each combination of harvest & tc scenarios, write to table
@@ -163,7 +164,7 @@ writeOutMC <- function(OutLeslieMC, Name)
 # }
 # }
 # write.table(risktable, paste('G:/Kona Crab/outputs/', Name, "_risktable.txt", sep=''), sep=",", row.names=F) ##
-#write to file
+# write to file
 # return(risktable)
 # }
 ## PLOT EIGENVALUE - UNFISHED
@@ -253,8 +254,9 @@ param.plots = function(OutLeslieMC){
 # ELASTICITY ANALYSIS
 right = function (string, char){
   substr(string,nchar(string)-(char-1),nchar(string))
-}o
-vernam = function(OutLeslieMC){
+}
+
+overnam = function(OutLeslieMC){
   row.names(OutLeslieMC)[1:4] = right(row.names(OutLeslieMC[1:4,]),5) ## overwrite names
   row.names(OutLeslieMC)[5] = right(row.names(OutLeslieMC[5,]),6) ## overwrite names
   row.names(OutLeslieMC)[6] = right(row.names(OutLeslieMC[6,]),7) ## overwrite names
@@ -334,7 +336,7 @@ plotElast = function(OutLeslieMC, Name){
 # }
 ## Save a plot of your choice to a file format of your choice; will be 8x10 inches
 savePlots = function(plotfunc, OutLeslieMC, Name, vals, form, height, width){
-  Path = here("Maia code","figures")
+  Path = "figures/"
   if(form == 'png'){
     png(paste0(Path, Name,"_",vals,'.',form), height = height, width = width)
   } else if(form == 'eps'){
@@ -350,7 +352,7 @@ savePlots = function(plotfunc, OutLeslieMC, Name, vals, form, height, width){
 ## function HARVESTPLOT
 ## purpose: plot misty mountains based on different H and TC
 harvestPlot = function(OutLeslieMC.FILE, Name, form){
-  Path = here("Maia code","figures")
+  Path = "figures/"
   if(form == 'png'){
     png(paste0(Path, Name,"_RvsHTC.",form), height = 960, width = 1200)
   } else if(form == 'eps'){
@@ -365,8 +367,8 @@ harvestPlot = function(OutLeslieMC.FILE, Name, form){
     params.df = read.table(OutLeslieMC.FILE, header = T,sep = ',')
   } else {
     params.df = OutLeslieMC.FILE
-  }p
-  arams.df$harvConst = as.factor(params.df$harvConst)
+  }
+  params.df$harvConst = as.factor(params.df$harvConst)
   par(mfrow = c(5, 2))
   par(oma = c(4, 4, 0, 0)) # make room (i.e. the 4's) for the overall x and y axis titles
   par(mar = c(1, 1, 2, 2)) # make the plots be closer together
@@ -432,7 +434,7 @@ makeParStats = function(OutLeslieMC, tc = 0, Name, write.file){
     StatsParamsMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "G:/KONA CRAB/outputs/"
+    Path <- "outputs/"
     write.table(StatsParamsMC, paste(Path, Name, "_StatsParamsMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsParamsMC)
@@ -460,7 +462,7 @@ makeSADStats = function(OutLeslieMC, tc, Name, write.file){
     StatsSADMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- here("Maia code","outputs")
+    Path <- "outputs/"
     write.table(StatsSADMC, paste(Path, Name, "_StatsSADMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsSADMC)
@@ -488,7 +490,7 @@ makeElastStats = function(OutLeslieMC, Name, write.file){
     StatsElastMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- here("Maia code","outputs")
+    Path <- "outputs/"
     write.table(StatsElastMC, paste(Path, Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsElastMC)
@@ -514,7 +516,7 @@ makeElastStats = function(OutLeslieMC, Name, write.file){
     StatsElastMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- here("Maia code","outputs")
+    Path <- "outputs/"
     write.table(StatsElastMC, paste(Path, Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsElastMC)
@@ -537,7 +539,7 @@ makeUsStats = function(OutLeslieMC, Name, write.file){
                                                                         'maxVal' = max(Us) ,
                                                                         'n' = n()))
   if(write.file == T){
-    Path <- here("Maia code","output")
+    Path <- "outputs/"
     write.table(StatsUsMC, paste(Path, Name, "_StatsUsMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsUsMC)
