@@ -4,7 +4,7 @@
 options(scipen = 1)
 library(dplyr)
 ## This size.matrix will get multiplied by instantaneous survivorship to generate overall survivorship at size class
-Linf = 130
+
 
 #source(here('Maia code','paramsScenarios.R'))
 ## Generate size transition probability matrix following Siddeek et al (2016)
@@ -47,7 +47,7 @@ for (i in 1:ncol(size.bins)) {
   ## APPROACH I, as in Siddeek paper
   # m[i] = 1 / (1 + exp(csiddeek*(tau[i]-dsiddeek)))
   ## ! APPROACH II, find one-year molt probabilities for each size class based on Chen's estimate of 1-year molt
-  prob.
+  #prob.
   m[i] = ifelse(tau[i] < 81, 1 / (1 + exp(-1*(-5.67+0.0116*365))),
                 ifelse(tau[i] > 80 & tau[i] < 91,
                        1 / (1 + exp(-1*(-5.27+0.0108*365))),

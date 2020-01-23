@@ -1,11 +1,17 @@
 ## SOURCE FUNCTIONS FOR KONA CRAB DEMOGRAPHIC ANALYSIS
 ##M KAPUR APR 2017
+## path edits from Siple in Jan 2020
+
 library(ggplot2)
 library(Rmisc)
+library(here)
+
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
 source(here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
+
 ## FUNCTION ESTIMATE.AGE - INTERNAL USE ONLY
 ## PURPOSE: Generate a rough estimate of size at age for internal use only
+
 estimate.age = function(size.bins, Linf, K, tZero, longevDraw){
   age.est.vec = NULL
   age.est.vec[ncol(size.bins)] = longevDraw ## the last value is always the longevity
