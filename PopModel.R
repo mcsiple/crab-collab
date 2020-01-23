@@ -1,6 +1,0 @@
-# Lee Qi has written code for running simulations using Halley's model
-
-# Pop model
-
-
-# Beverton-Holt recruitment
