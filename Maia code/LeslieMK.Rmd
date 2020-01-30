@@ -1,11 +1,12 @@
 ---
-title: "Leslie Matrix Simulation: Kona Crab"
+title: "Leslie Matrix Simulation: Samoan Crab"
 author: "M Kapur adapted from A Aires da Silva"
-date: "2017 April Ongoing"
+date: "2017 April - 2020 January"
 output:
   html_notebook
 ---
-The final objective of this code is to compute a general stochastic demographic analysis for Kona crabs.
+The final objective of this code is to compute a general stochastic demographic analysis for Samoan crab. The original file was written by Maia Sosa Kapur, and has been recently edited by Megsie Siple to apply to Samoan crab. This mostly involves parameterizing. Adult survivorship is separately estimated from mark-recapture data. See Methods.Rmd for a description of that part.
+
 Parameters that are currently simulated are:
 
 1. EPR, the number of spawning events per year (runif(1,0,3)) - ACTUALLY FIXED @ 2
@@ -14,7 +15,16 @@ Parameters that are currently simulated are:
 
 
 ```{r runLeslieMC, message = F, warning = F, eval = F}
-source(here("Maia code","miscFunctions.R"))
+library(ggplot2)
+library(here)
+library(Rmisc)
+library(dplyr)
+library(tidyr)
+
+source(here::here("Maia code","paramsScenarios.R"))
+source(here::here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
+source(here::here("Maia code","miscFunctions.R"))
+
 ## FUNCTION runLeslieMC
 ## Purpose: create Leslie matrix, applying simulations described above.
 runLeslieMC = function(nsims.master, harvest.breaks) {
@@ -339,7 +349,9 @@ runLeslieMC = function(nsims.master, harvest.breaks) {
   }
 
 ```
-Run & Plot outcomes of Leslie
+
+
+Run & Plot outcomes of Leslie matrix simulation.
 ```{r, eval = F}
 ## ON GUSTAV: c(nsims, harvest.breaks, tc)
 ## 18 hours (10K,10,4)
@@ -353,7 +365,7 @@ Run & Plot outcomes of Leslie
 ## < 10 hours (10K,10,4)
 
 runID = 'newMort'
-nsims.master = 10000
+nsims.master = 100
 ts = format(Sys.time(), "%d%b%Y")
 Name <- paste0(runID, '_', ts)
 p = proc.time()
@@ -369,25 +381,40 @@ makeElastStats(test, Name = Name, write.file = T)
 makeUsStats(test, Name = Name, write.file = T)
 
 ## quick inspection
-# params = read.table(paste0("G:/KONA_CRAB/harvest_study/outputs/",Name,"_params.txt"), header = T, sep = ',')
-# # with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
+params = read.table(paste0(here::here("Maia code","outputs"),"/",Name,"_params.txt"),
+                    header = T,sep = ",")
+with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
 # plot(1,type = 'n', xlim = c(-3,3),ylim = c(0,10), yaxt = 'n', ylab = 'mk')
 # d = with(subset(params, tc == 0 & harvConst == 0.9), density(rVal))
 # polygon(d, col = "grey", border = 'white')
 
 harvestPlot(OutLeslieMC.FILE = params, Name = Name, 
 form = 'png') ## save r values vs h,tc plot
-> graphics.off()
+graphics.off()
+```
 
 
-lifehist = read.table(paste0("G:/KONA_CRAB/harvest_study/outputs/",Name,"_lifehist.txt"), header = T, sep = ',')
-lifehist %>% select(c(Surv.11.58,Surv.59.65,Surv.66.80,Surv.81.90,Surv.91.102,Surv.103.115,Surv.116.)) %>%
-  summarise_all(funs(mean))
+Read life history info, summarize survival and fecundity by size class.
+```{r, echo = TRUE}
+lifehist = read.table(paste0(here::here("Maia code","outputs"),"/",Name,"_lifehist.txt"), header = T, sep = ',')
+    # lifehist %>% 
+    #   select(c(Surv.11.58,Surv.59.65,Surv.66.80,Surv.81.90,Surv.91.102,Surv.103.115,Surv.116.)) %>%
+    #   summarise_all(funs(mean))
 
+#MCS: funs() is soft-depracated so here is a new way to summarize
+lifehist %>%
+  gather(HEADER,simID) %>% 
+  group_by(HEADER) %>%
+  summarize(meanval = mean(simID))
 ## inspect the outputs for gross errors
 # head(test$lifehist)
 
 param.plots(test) ## inspect demographic plots
+```
+
+
+Save plots in files
+```{r}
 savePlots(param.plots, OutLeslieMC = OutLeslieMC, Name = Name, vals = 'params', form = 'jpg', height = 1, width = 10) ## save demographic plots
 # harvestPlot(OutLeslieMC.FILE = test$params, Name = Name, form = 'png') ## save r values vs h,tc plot
 savePlots(plotElast, test, Name, vals = 'elast', form = 'png', height = 550, width = 725) ## save elasticity plot
