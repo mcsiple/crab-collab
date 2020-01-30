@@ -2,13 +2,13 @@
 ##M KAPUR APR 2017
 ## path edits from Siple in Jan 2020
 
-library(ggplot2)
-library(Rmisc)
-library(here)
+# library(ggplot2)
+# library(Rmisc)
+# library(here)
 
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
 
-source(here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
+#source(here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
 
 ## FUNCTION ESTIMATE.AGE - INTERNAL USE ONLY
 ## PURPOSE: Generate a rough estimate of size at age for internal use only
@@ -41,23 +41,26 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
   S = NULL
   for (a in 1:length(age.est.vec)) {
     M[a] = ((age.est.vec[a] + 1) ^ -zeta) / (longevDraw ^ -zeta) * mh
-    S[a] = exp(-M[a])*0.064 ## ! larval mortality from Sakai 1971
+    S[a] = exp(-M[a])*0.266 ## larval mortality rate from Quinitio et al. 2001 (cited in Meynecke & Richards 2014)
   }
   return(data.frame('MORTALITY' = M, 'SURVIVORSHIP' = S))
 }
+
+
 ## FUNCTION: FX
 ## PURPOSE: GENERATE EXPECTED EGGS @ SIZE BIN
 ## Equation given by Onizuka fecundity-size relationship, mature sizes only
 FX.func = function(size.bins){
   eggs = NULL
   for(f in 1:ncol(size.bins)){
-    if(mean(size.bins[,f]) > 60){
-      eggs[f] = (beta*mean(size.bins[,f]) - 110433.1) ## in 1000s of Individuals
+    if(mean(size.bins[,f]) > 60){ # MCS: 60 is size @ emergence I think
+      eggs[f] = (beta*mean(size.bins[,f]) - (286.5 * 1e3)) # intercept from Sarower & Sabir 2013
     } else {
       eggs[f] = 0 }
   }
   return(eggs)
 }
+
 ## FUNCTION: OX
 ## PURPOSE: derive the proportion of mature females at size bin. Have to go through age first.
 ## APPROACH I: PER CARVALHO 2014
