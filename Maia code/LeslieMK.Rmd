@@ -15,6 +15,7 @@ Parameters that are currently simulated are:
 
 
 ```{r runLeslieMC, message = F, warning = F, eval = F}
+<<<<<<< HEAD
 library(ggplot2)
 library(here)
 library(Rmisc)
@@ -123,7 +124,7 @@ runLeslieMC = function(nsims.master, harvest.breaks) {
     FX = FX.func(size.bins) ## just expected egg output
     # EPR = ceiling(abs(rnorm(1,1,1)))
     # cat(EPR,"\n")
-    EPR = 2
+    EPR = ceiling(abs(runif(1,0,3))) #2
     fecundity.vector = FX * SR * EPR ## per capita female birth rate
     # cat(fecundity.vector,"\n")
   
@@ -364,12 +365,18 @@ Run & Plot outcomes of Leslie matrix simulation.
 ## On V003
 ## < 10 hours (10K,10,4)
 
+<<<<<<< HEAD
 runID = 'newMort'
 nsims.master = 100
 ts = format(Sys.time(), "%d%b%Y")
+=======
+runID <- 'testStoke'
+nsims.master <- 1000
+ts <- format(Sys.time(), "%d%b%Y")
+>>>>>>> a35c7a1a150dc9d4ddf0f9d0f932c5269c630f98
 Name <- paste0(runID, '_', ts)
-p = proc.time()
-test = runLeslieMC(nsims.master = nsims.master,
+p <- proc.time()
+test <- runLeslieMC(nsims.master <- nsims.master,
                    harvest.breaks = harvest.breaks)
 proc.time() - p
 
@@ -384,6 +391,9 @@ makeUsStats(test, Name = Name, write.file = T)
 params = read.table(paste0(here::here("Maia code","outputs"),"/",Name,"_params.txt"),
                     header = T,sep = ",")
 with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
+
+#params <- read.table(paste0("outputs/",Name,"_params.txt"), header = T, sep = ',')
+# # with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
 # plot(1,type = 'n', xlim = c(-3,3),ylim = c(0,10), yaxt = 'n', ylab = 'mk')
 # d = with(subset(params, tc == 0 & harvConst == 0.9), density(rVal))
 # polygon(d, col = "grey", border = 'white')
@@ -391,6 +401,7 @@ with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
 harvestPlot(OutLeslieMC.FILE = params, Name = Name, 
 form = 'png') ## save r values vs h,tc plot
 graphics.off()
+
 ```
 
 
@@ -400,6 +411,11 @@ lifehist = read.table(paste0(here::here("Maia code","outputs"),"/",Name,"_lifehi
     # lifehist %>% 
     #   select(c(Surv.11.58,Surv.59.65,Surv.66.80,Surv.81.90,Surv.91.102,Surv.103.115,Surv.116.)) %>%
     #   summarise_all(funs(mean))
+
+
+lifehist = read.table(paste0("outputs/",Name,"_lifehist.txt"), header = T, sep = ',')
+# lifehist %>% select(c(Surv.11.58,Surv.59.65,Surv.66.80,Surv.81.90,Surv.91.102,Surv.103.115,Surv.116.)) %>%
+#   summarise_all(funs(mean))
 
 #MCS: funs() is soft-depracated so here is a new way to summarize
 lifehist %>%
@@ -421,8 +437,8 @@ savePlots(plotElast, test, Name, vals = 'elast', form = 'png', height = 550, wid
 
 graphics.off()
 
-harvestPlot2(OutLeslieMC.FILE = params, Name = Name, 
-             form = 'png', bgcol = c('black',"white")[1]) ## save r values vs h,tc plot
+# harvestPlot2(OutLeslieMC.FILE = params, Name = Name, 
+#              form = 'png', bgcol = c('black',"white")[1]) ## save r values vs h,tc plot
 graphics.off()
 
 # View(makeParStats(test, tc = 0, Name, write.file = F))

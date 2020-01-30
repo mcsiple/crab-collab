@@ -9,10 +9,14 @@
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
 
 #source(here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
+library(ggplot2)
+library(Rmisc)
+## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
+source('sizeMatrix.R') ## generate the size matrix separately
+
 
 ## FUNCTION ESTIMATE.AGE - INTERNAL USE ONLY
 ## PURPOSE: Generate a rough estimate of size at age for internal use only
-
 estimate.age = function(size.bins, Linf, K, tZero, longevDraw){
   age.est.vec = NULL
   age.est.vec[ncol(size.bins)] = longevDraw ## the last value is always the longevity
@@ -120,7 +124,7 @@ runBissect = function(Ulow,Uhigh,bissectIters,bissectConv,LeslieMat,tc)
 # Purpose: save list "OutLeslieMC" to txt files
 writeOutMC <- function(OutLeslieMC, Name)
 {
-  Path <- "outputs/"
+  Path <- "./outputs/"
   line = as.character(date()) ## include a timestamp
   ## special internal function for init list
   fnlist = function(x,fil){
@@ -355,7 +359,7 @@ savePlots = function(plotfunc, OutLeslieMC, Name, vals, form, height, width){
 ## function HARVESTPLOT
 ## purpose: plot misty mountains based on different H and TC
 harvestPlot = function(OutLeslieMC.FILE, Name, form){
-  Path = "figures/"
+  Path = "./figures/"
   if(form == 'png'){
     png(paste0(Path, Name,"_RvsHTC.",form), height = 960, width = 1200)
   } else if(form == 'eps'){
@@ -376,7 +380,7 @@ harvestPlot = function(OutLeslieMC.FILE, Name, form){
   par(oma = c(4, 4, 0, 0)) # make room (i.e. the 4's) for the overall x and y axis titles
   par(mar = c(1, 1, 2, 2)) # make the plots be closer together
   for (h in 1:length(h.vector)) {
-    plot(1, type = "n",xlim = c(-1.5, 1.5),ylim = c(0, 8.5),frame.plot = F,
+    plot(1, type = "n",xlim = c(-5, 5),frame.plot = F,
          main = paste0('Harvest Mortality = ', h.vector[h]), cex.main = 2,axes = F ) ## empty plot
     axis(side = 1,
          labels = (h == 9 | h == 10),
@@ -437,7 +441,7 @@ makeParStats = function(OutLeslieMC, tc = 0, Name, write.file){
     StatsParamsMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "outputs/"
+    Path <- "./outputs/"
     write.table(StatsParamsMC, paste(Path, Name, "_StatsParamsMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsParamsMC)
@@ -465,7 +469,7 @@ makeSADStats = function(OutLeslieMC, tc, Name, write.file){
     StatsSADMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "outputs/"
+    Path <- "./outputs/"
     write.table(StatsSADMC, paste(Path, Name, "_StatsSADMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsSADMC)
@@ -493,7 +497,7 @@ makeElastStats = function(OutLeslieMC, Name, write.file){
     StatsElastMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "outputs/"
+    Path <- "./outputs/"
     write.table(StatsElastMC, paste(Path, Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsElastMC)
@@ -519,7 +523,7 @@ makeElastStats = function(OutLeslieMC, Name, write.file){
     StatsElastMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "outputs/"
+    Path <- "./outputs/"
     write.table(StatsElastMC, paste(Path, Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsElastMC)
@@ -542,7 +546,7 @@ makeUsStats = function(OutLeslieMC, Name, write.file){
                                                                         'maxVal' = max(Us) ,
                                                                         'n' = n()))
   if(write.file == T){
-    Path <- "outputs/"
+    Path <- "./outputs/"
     write.table(StatsUsMC, paste(Path, Name, "_StatsUsMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsUsMC)
