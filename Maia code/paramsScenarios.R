@@ -4,8 +4,9 @@
 ## FIXED POINT ESTIMATES
 ## GROWTH ##
 Linf = 211  # S. serrata, Indonesia, La Sara (2010) (most recent available estimate)
-K = c(1.38,0.83)[1] ## S. serrata, Indonesia, La Sara (2010) 
-tZero = -0.1 ## Australia, Dichmont & Brown (2010)
+K = c(0.76,01.38)[1] # from Scylla olivacea in India; Viswanathan et al. 2016
+                    ## S. serrata, Indonesia, La Sara (2010): 1.38
+tZero = -0.63       ## from Scylla olivacea in India; Viswanathan et al. 2016
 
 ## longevity parameters
 # maxage = 16 ## O'Neill
@@ -23,7 +24,7 @@ L50 = 90 ## this study
 
 ## slope of length-fecundity equation 
 ## For Samoan crab, 15.55 x 1000 eggs increase per mm of carapace width - Sarower et al. (2013), Bangladesh - check w Maia ( 1000 eggs per mm is Kona crab value beta = 2081.8; from Onizuka 1972)
-beta = 15.55 
+beta = 15.55 * 1e2 #1500 
 ## fixed sex proportion of females - fixed by me (Megsie) because we don't know the sex ratio...
 SR = 0.5
 
@@ -33,10 +34,6 @@ hoenig.slope = -0.982
 hoenig.int = 1.44
 
 ## HARVEST RATE POLICIES ##
-## These aren't really used, have been replaced by decrement
-# harvConst = 0.3
-# harvMean = 0.3
-# harvSD = 0.1
 harvest.breaks = 10 ## number of even breaks from 0 - 0.9 to simulate harvest mortality (can't do 100%, gives -Inf
 # for rVal)
 hmin = 0
