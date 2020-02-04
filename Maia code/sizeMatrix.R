@@ -2,23 +2,31 @@
 ## Slight modification in calcluating Pmolt using empirical parameters. ! Indicates deviations.
 # remove scientific numbers
 options(scipen = 1)
-library(dplyr)
+#library(dplyr)
 
 ## This size.matrix will get multiplied by instantaneous survivorship to generate overall survivorship at size class
-
-
 #source(here('Maia code','paramsScenarios.R'))
-=======
+
 ## This size.matrix will get multiplied by instantaneous survivorship to generate overall survivorship at size class.
-source('paramsScenarios.R')
+#source('paramsScenarios.R')
 
 ## Generate size transition probability matrix following Siddeek et al (2016)
 ## 11mm is size @ first emergence, Brown (2008). The 58 -65 bin is the range from 0 to 80% fecundity, Onizuka (1972)
 ## Also Onizuka did not observe catches smaller than 35mm, but this covers the range
 # size.bins = data.frame(matrix(c(11, 58, 59, 65, 66, 80, 81, 90, 91, 102, 103, Linf, Linf + 1, 150), nrow = 2))
 # colnames(size.bins) = c('11-58', '59-65', '66-80', '81-90', '91-102','103-115','116+')
-size.bins = data.frame(matrix(c(11, 58, 59, 65, 66, 80, 81, 90, 91, 102, 103, Linf, Linf + 1, 150), nrow = 2))
-colnames(size.bins) = c('11-58', '59-65', '66-80', '81-90', '91-102','103-115','116+')
+
+size.bins <- data.frame(matrix(c(11, 60, 61, 80, 81, 100, 101, 120, 121, 140,141, 160, 161, 180, 181, Linf, Linf + 1, 250), nrow = 2))
+colnames(size.bins) = c('11-60','61-80', '81-100', '101-120', '121-140', '141-160','161-180','181-211','212+')
+
+inv.logit <- function(x){
+  #' @description takes the inverse logit of x
+  #' @param x number to take inv logit of (num) 
+  #' @return inverse logit of x, returns NA if is.na(x)
+  rev <- exp(x)/(1+exp(x))
+  return(rev)
+}
+
 ## STEP 1: model individual variation in growth increment [Pij]
 ## empty matrix for probability densities of growth increment - "individual variability"
 PIJ = matrix(NA, nrow = ncol(size.bins), ncol = ncol(size.bins))
@@ -54,10 +62,12 @@ for (i in 1:ncol(size.bins)) {
   ## ! APPROACH II, find one-year molt probabilities for each size class based on Chen's estimate of 1-year molt
   #prob.
 
-  m[i] = ifelse(tau[i] < 81, 1 / (1 + exp(-1*(-5.67+0.0116*365))),
-                ifelse(tau[i] > 80 & tau[i] < 91,
-                       1 / (1 + exp(-1*(-5.27+0.0108*365))),
-                       1 / (1 + exp(-1*(-1109.2+1.775*365)))))
+  
+  m[i] = ifelse(tau[i] < 80, 
+                inv.logit(-5.67+0.0116*365), 
+                ifelse(tau[i] > 80 & tau[i] < 91, 
+                       inv.logit(-5.27+0.0108*365),
+                       inv.logit(-1109.2+1.775*365)))
   ## APPROACH III, all probabilities are I
   # m[i] = 1
 }
