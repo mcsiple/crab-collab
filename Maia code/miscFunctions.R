@@ -2,17 +2,12 @@
 ##M KAPUR APR 2017
 ## path edits from Siple in Jan 2020
 
-# library(ggplot2)
-# library(Rmisc)
-# library(here)
-
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
 
-#source(here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
 library(ggplot2)
 library(Rmisc)
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
-source('sizeMatrix.R') ## generate the size matrix separately
+source(here::here('Maia code','sizeMatrix.R')) ## generate the size matrix separately
 
 
 ## FUNCTION ESTIMATE.AGE - INTERNAL USE ONLY
@@ -45,7 +40,7 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
   S = NULL
   for (a in 1:length(age.est.vec)) {
     M[a] = ((age.est.vec[a] + 1) ^ -zeta) / (longevDraw ^ -zeta) * mh
-    S[a] = exp(-M[a])*0.266 ## larval mortality rate from Quinitio et al. 2001 (cited in Meynecke & Richards 2014)
+    S[a] = exp(-M[a])*0.266  ## larval mortality rate from Quinitio et al. 2001 (cited in Meynecke & Richards 2014) - CHECK VALUE
   }
   return(data.frame('MORTALITY' = M, 'SURVIVORSHIP' = S))
 }
@@ -57,11 +52,12 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
 FX.func = function(size.bins){
   eggs = NULL
   for(f in 1:ncol(size.bins)){
-    if(mean(size.bins[,f]) > 60){ # MCS: 60 is size @ emergence I think
-      eggs[f] = (beta*mean(size.bins[,f]) - (286.5 * 1e3)) # intercept from Sarower & Sabir 2013
+    if(mean(size.bins[,f]) > 89){ # MCS: using 11 at size at emergence but replace later with true value 
+      eggs[f] = (beta*mean(size.bins[,f]) - 110000) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
     } else {
       eggs[f] = 0 }
   }
+  #cat(eggs)
   return(eggs)
 }
 
@@ -124,7 +120,7 @@ runBissect = function(Ulow,Uhigh,bissectIters,bissectConv,LeslieMat,tc)
 # Purpose: save list "OutLeslieMC" to txt files
 writeOutMC <- function(OutLeslieMC, Name)
 {
-  Path <- "./outputs/"
+  Path <- here::here('Maia code','outputs')
   line = as.character(date()) ## include a timestamp
   ## special internal function for init list
   fnlist = function(x,fil){
@@ -136,11 +132,11 @@ writeOutMC <- function(OutLeslieMC, Name)
           file=fil, append=TRUE)}
     write(paste0('NSIMS ',nsims.master), fil, append=TRUE)
   }
-  fnlist(inits, paste(Path, Name, "_inits.txt", sep=''))
+  fnlist(inits, paste(Path,'/', Name, "_inits.txt", sep=''))
   ## OTHER INITS AND OUTPUTS
-  write.table(OutLeslieMC$lifehist, paste(Path, Name, "_lifehist.txt", sep=''), sep=",", row.names=F) ## write lifhis
-  write.table(OutLeslieMC$params, paste(Path, Name, "_params.txt", sep=''), sep=",", row.names=F)
-  write.table(OutLeslieMC$outUs, paste(Path, Name, "_outUS.txt", sep=''), sep=",", row.names=F)
+  write.table(OutLeslieMC$lifehist, paste(Path, '/', Name, "_lifehist.txt", sep=''), sep=",", row.names=F) ## write lifhis
+  write.table(OutLeslieMC$params, paste(Path, '/', Name, "_params.txt", sep=''), sep=",", row.names=F)
+  write.table(OutLeslieMC$outUs, paste(Path, '/', Name, "_outUS.txt", sep=''), sep=",", row.names=F)
   ## GENERATE RISK TABLE
   ## Purpose: calculate proportion of negative R values for each combination of harvest & tc scenarios, write to
   table
@@ -154,7 +150,7 @@ writeOutMC <- function(OutLeslieMC, Name)
       risktable[t,h] = nrow(sub[sub$rVal < 0,])/nrow(sub)
     }
   }
-  write.table(risktable, paste('outputs/', Name, "_risktable.txt", sep=''), sep=",", row.names=F) ##
+  write.table(risktable, paste(Path,'/', Name, "_risktable.txt", sep=''), sep=",", row.names=F) ##
   # write to file
 }
 # # FUNCTION: genRiskTable
@@ -441,8 +437,8 @@ makeParStats = function(OutLeslieMC, tc = 0, Name, write.file){
     StatsParamsMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "./outputs/"
-    write.table(StatsParamsMC, paste(Path, Name, "_StatsParamsMC.txt", sep=''), sep=",", row.names=F)
+    Path <- here::here('Maia code','outputs')
+    write.table(StatsParamsMC, paste(Path, '/',Name, "_StatsParamsMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsParamsMC)
 }
@@ -469,8 +465,8 @@ makeSADStats = function(OutLeslieMC, tc, Name, write.file){
     StatsSADMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "./outputs/"
-    write.table(StatsSADMC, paste(Path, Name, "_StatsSADMC.txt", sep=''), sep=",", row.names=F)
+    Path <- here::here('Maia code','outputs')
+    write.table(StatsSADMC, paste(Path,'/', Name, "_StatsSADMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsSADMC)
 }
@@ -497,8 +493,8 @@ makeElastStats = function(OutLeslieMC, Name, write.file){
     StatsElastMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "./outputs/"
-    write.table(StatsElastMC, paste(Path, Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
+    Path <- here::here('Maia code','outputs')
+    write.table(StatsElastMC, paste(Path,'/', Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsElastMC)
 }
@@ -523,8 +519,8 @@ makeElastStats = function(OutLeslieMC, Name, write.file){
     StatsElastMC[,i] = c(meanVal,medianVal,CI95L,CI95U,n)
   }
   if(write.file == T){
-    Path <- "./outputs/"
-    write.table(StatsElastMC, paste(Path, Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
+    Path <- here::here('Maia code','outputs')
+    write.table(StatsElastMC, paste(Path, '/',Name, "_StatsElastMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsElastMC)
 }
@@ -546,8 +542,8 @@ makeUsStats = function(OutLeslieMC, Name, write.file){
                                                                         'maxVal' = max(Us) ,
                                                                         'n' = n()))
   if(write.file == T){
-    Path <- "./outputs/"
-    write.table(StatsUsMC, paste(Path, Name, "_StatsUsMC.txt", sep=''), sep=",", row.names=F)
+    Path <- here::here('Maia code','outputs')
+    write.table(StatsUsMC, paste(Path, '/',Name, "_StatsUsMC.txt", sep=''), sep=",", row.names=F)
   }
   return(StatsUsMC)
 }
