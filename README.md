@@ -1,5 +1,5 @@
 # Authors 
-K. Hurley, M. Siple, M. Kapur
+K. Hurley, M. Kapur, M. Siple
 
 # Project description
 This project is an attempt to characterize the Samoan crab (<i>Scylla serrata</i>) fishery in Kaneohe Bay, and examine the impacts of different harvest rules on the sustainability of the stock. This is a chpater of Kaleolani Hurley's dissertation on native harvest of introduced species.
@@ -11,4 +11,4 @@ The two project questions are:
 The code produces survival rates and a growth probability matrix from mark-recapture data, then simulates abundance and harvest based on future scenarios.
 
 # Author contributions 
-This simulation study uses mark-recapture data from Kaleo Hurley's field study and a Leslie matrix population model from Maia Kapur. Megsie Siple wrote the code to produce the growth-transition matrix and adult natural mortality estimates. 
+This simulation study uses mark-recapture data from Kaleo Hurley's field study and a Leslie matrix population model by Maia Kapur. Megsie Siple wrote the code to produce adult natural mortality estimates and reparameterized the model for Samoan crab. All three contributed to the manuscript. 
