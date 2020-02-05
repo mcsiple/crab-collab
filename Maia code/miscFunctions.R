@@ -1,6 +1,6 @@
 ## SOURCE FUNCTIONS FOR KONA CRAB DEMOGRAPHIC ANALYSIS
 ##M KAPUR APR 2017
-## path edits from Siple in Jan 2020
+## path and parameter edits from Siple in Jan 2020
 
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
 
@@ -39,8 +39,12 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
   M = NULL
   S = NULL
   for (a in 1:length(age.est.vec)) {
-    M[a] = ((age.est.vec[a] + 1) ^ -zeta) / (longevDraw ^ -zeta) * mh
-    S[a] = exp(-M[a])*0.266  ## larval mortality rate from Quinitio et al. 2001 (cited in Meynecke & Richards 2014) - CHECK VALUE
+    #if(a<2){
+      M[a] = ((age.est.vec[a] + 1) ^ -zeta) / (longevDraw ^ -zeta) * mh
+     # }else{
+     #   M[a] = 1-0.53 # experiment: use values estimated from mark-recap experiment
+     # }
+    S[a] = exp(-M[a])*0.026 ## larval mortality rate from Quinitio et al. 2001
   }
   return(data.frame('MORTALITY' = M, 'SURVIVORSHIP' = S))
 }
@@ -49,10 +53,10 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
 ## FUNCTION: FX
 ## PURPOSE: GENERATE EXPECTED EGGS @ SIZE BIN
 ## Equation given by Onizuka fecundity-size relationship, mature sizes only
-FX.func = function(size.bins){
+FX.func = function(size.bins,size.at.maturity){
   eggs = NULL
   for(f in 1:ncol(size.bins)){
-    if(mean(size.bins[,f]) > 89){ # MCS: using 11 at size at emergence but replace later with true value 
+    if(mean(size.bins[,f]) > size.at.maturity){ # MCS: using 11 at size at emergence but replace later with true value 
       eggs[f] = (beta*mean(size.bins[,f]) - 110000) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
     } else {
       eggs[f] = 0 }
@@ -81,7 +85,7 @@ makeHarvestMat = function(size.bins, harvConst, tc){
   harvestVec = rep(NA, ncol(size.bins))
   for(i in 1:ncol(size.bins)){
     if(max(size.bins[,i] < tc)){
-      harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for
+      harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
     } else {
       harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
     }

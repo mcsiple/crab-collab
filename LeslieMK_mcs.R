@@ -7,10 +7,11 @@ library(here)
 library(Rmisc)
 library(dplyr)
 library(tidyr)
+library(ggsidekick) # just for plots: devtools::install_github("seananderson/ggsidekick")
 
-source(here::here("Maia code","paramsScenarios.R"))
-source(here::here("Maia code","sizeMatrix.R")) ## generate the size matrix separately
-source(here::here("Maia code","miscFunctions.R"))
+source(here::here("Maia code","paramsScenarios.R")) # load params
+source(here::here("Maia code","sizeMatrix.R")) # generate size transition matrix
+source(here::here("Maia code","miscFunctions.R")) #
 
 
 runLeslieMC <- function(nsims.master, harvest.breaks) {
@@ -72,25 +73,26 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
     } ## report every 100 sims
     
     ## Run Pop Model
-    longevDraw = runif(1,7,16) ## lit reported range
+    longevDraw = runif(1,7,16) ## lit reported range for Kona crab 
     
-    # mh = hoenig(
-    #   hoenig.slope = hoenig.slope,
-    #   hoenig.int = hoenig.int,
-    #   longevDraw = longevDraw
-    # )
-    # 
-    # nat.survivorship.temp = nat.mort(
-    #   longevDraw = longevDraw,
-    #   zeta = 0.3,
-    #   mh = mh,
-    #   age.est.vec = 1:longevDraw
-    # )[, 'SURVIVORSHIP'] ## values from Oneill; age based matrix
+    mh = hoenig(
+      hoenig.slope = hoenig.slope,
+      hoenig.int = hoenig.int,
+      longevDraw = longevDraw
+    )
+
+    nat.survivorship.temp = nat.mort(
+      longevDraw = longevDraw,
+      zeta = 0.3,
+      mh = mh,
+      age.est.vec = 1:longevDraw
+    )[, 'SURVIVORSHIP'] ## values from Oneill; age based matrix
+   
     
     # longevDraw = 16
     # Natural Mortality: Randomly choose survivorship from uniform distribution, dims of longevity (which varies)
-    SurvAge <- sort(runif(longevDraw, 0.01, 0.04), decreasing = F)
-    
+    #SurvAge <- sort(runif(longevDraw, 0.01, 0.04), decreasing = F)
+    SurvAge <- nat.survivorship.temp
     # cat("SurvAge  ",SurvAge,"\n")
     # survPlot(SurvAge, size.matrix)
      
@@ -98,32 +100,21 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
     N <- array(1, dim = c(length(SurvAge), ncol(size.matrix)))
     ## Multiply by STM - this becomes diagonal of Lefkovich
     
-    surv.vector <-  (N * SurvAge) %*% size.matrix %>%
+    surv.vector <- (N * SurvAge) %*% size.matrix %>%
       round(digits = 4) %>%
       apply(.,2,mean) %>%
       t() %>%
       as.data.frame()
-    surv.vector[1] <- 0.266 # larval survival: Quinitio et al 2001 
+    surv.vector[1] <- 0.026 # larval survival: from Quinitio et al 2001; 2.6 +/- 0.8 %  (spanner crab value 0.064)
     colnames(surv.vector) <- NULL
     
     ## Fecundity
-    FX = FX.func(size.bins) ## just expected egg output
+    FX = FX.func(size.bins,size.at.maturity) ## just expected egg output
     # EPR = ceiling(abs(rnorm(1,1,1)))
     # cat(EPR,"\n")
     EPR = ceiling(abs(runif(1,0,3))) #2
     fecundity.vector = FX * SR * EPR ## per capita female birth rate
     # cat(fecundity.vector,"\n")
-    
-    #   age.est.vec = estimate.age(
-    #   size.bins = size.bins,
-    #   Linf = Linf,
-    #   K = K,
-    #   tZero = tZero,
-    #   longevDraw = longevDraw
-    # )
-    # # 
-    
-    # # 
     
     
     # surv.vector = nat.survivorship.temp %*% size.matrix ## multiply by size matrix to get surviving portion within each size class; see Punt 2003. These are decoupled from harvest
@@ -346,7 +337,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 # Run & plot outcomes of Leslie matrix simulation.
 
 runID = 'newMort'
-nsims.master = 10
+nsims.master = 100
 ts = format(Sys.time(), "%d%b%Y")
 
 Name <- paste0(runID, '_', ts)
@@ -376,7 +367,7 @@ head(params)
 params %>%
   select(rVal,harvConst,tc) %>%
   ggplot(aes(x=rVal,fill=factor(tc))) +
-  facet_wrap(~harvConst) +
+  facet_wrap(~harvConst,scales="free_y") +
   scale_fill_brewer('Minimum capture size (mm)') +
   geom_density(alpha = 0.5) +
   geom_vline(data= medians, aes(xintercept=medR),colour='darkgrey',lty=2) +

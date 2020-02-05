@@ -7,5 +7,5 @@ dat <- read.csv(here::here('Heeia_crabdata_Apr2019.csv'))
 up_pts <- seq(minsize+4,maxsize,by=20)
 mid_pts <- up_pts-10
 
-
+paste0(mid_pts,up_pts)
 # Generate size transition probability matrix following Siddeek et al (2016)
