@@ -336,7 +336,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'newMort'
+runID = 'MarkRecapSurv_100'
 nsims.master = 100
 ts = format(Sys.time(), "%d%b%Y")
 
@@ -348,7 +348,8 @@ proc.time() - p
 
 writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
 ## Generate summary text files (this happens instead of writing all raw data)
-makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 CHECK DIRS
+makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 
+makeSADStats(test, Name = Name, write.file = T) 
 makeSADStats(test, Name = Name, write.file = T) 
 makeElastStats(test, Name = Name, write.file = T)
 makeUsStats(test, Name = Name, write.file = T) 
@@ -358,31 +359,56 @@ params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.t
                     header = T,sep = ",")
 head(params)
 
-
+dim(table(params$harvConst,params$tc))
 # Check mean rval at each harvest rate
 ( medians <- params %>%
     group_by(harvConst,tc) %>%
     summarize(medR = median(rVal)) )
 
-params %>%
+
+Fig1 <- params %>%
   select(rVal,harvConst,tc) %>%
   ggplot(aes(x=rVal,fill=factor(tc))) +
   facet_wrap(~harvConst,scales="free_y") +
   scale_fill_brewer('Minimum capture size (mm)') +
   geom_density(alpha = 0.5) +
-  geom_vline(data= medians, aes(xintercept=medR),colour='darkgrey',lty=2) +
+  geom_vline(data=medians, aes(xintercept=medR),colour='darkgrey',lty=2) +
   xlab('Population growth rate (r)') +
   ylab('Density') +
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
 
+        # tiff("Fig1_growth.tiff",width = 8,height = 5,units = 'in',res=200)
+        Fig1
+        # dev.off()
 
+# What is mean unfished growth rate?
+params %>%
+  filter(harvConst==0) %>%
+  group_by(tc) %>%
+  summarize(meanR = mean(rVal))
 
-#params <- read.table(paste0("outputs/",Name,"_params.txt"), header = T, sep = ',')
-# # with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
-# plot(1,type = 'n', xlim = c(-3,3),ylim = c(0,10), yaxt = 'n', ylab = 'mk')
-# d = with(subset(params, tc == 0 & harvConst == 0.9), density(rVal))
-# polygon(d, col = "grey", border = 'white')
+# what is the pop doubling time?
+mean(test$params$tDouble) 
+
+# how many combos of harvConst and min cap size?
+length(table(unique(params[,c('tc','harvConst')])))
+
+# which harvest rate produces no negative grwoth rates?
+params %>%
+  group_by(harvConst,tc) %>%
+  summarize(min(rVal)) %>%
+  as.data.frame()
+
+# what is the minimum size captured in the data?
+76
+
+# what is the min tagged size (for putting survivorship from CJS into the matrix model)
+crabdat %>%
+  filter(Tag_YNNew =="Yes") %>%
+  summarize(min.tagged.size = min(CWid_LR_mm))
+  
+
 
 harvestPlot(OutLeslieMC.FILE = params, Name = Name, 
             form = 'png') ## save r values vs h,tc plot
@@ -396,15 +422,12 @@ graphics.off()
 
 # harvestPlot2(OutLeslieMC.FILE = params, Name = Name, 
 #              form = 'png', bgcol = c('black',"white")[1]) ## save r values vs h,tc plot
-graphics.off()
+#graphics.off()
 
 # View(makeParStats(test, tc = 0, Name, write.file = F))
 # View(makeSADStats(test, Name, write.file = F))
 # View(makeElastStats(test, Name, write.file = F))
 # View(makeUsStats(test, Name, write.file = T))
-
-
-# params = read.table('G:/KONA CRAB/outputs/MasterRun_0515_15May2017_params.txt', header = T, sep = ',')
 
 # options(digits = 10)
 # params %>% group_by(tc, harvConst) %>% summarise(min(rVal))
