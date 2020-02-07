@@ -73,7 +73,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
     } ## report every 100 sims
     
     ## Run Pop Model
-    longevDraw = runif(1,7,16) ## lit reported range for Kona crab 
+    longevDraw = runif(1,7,16) ## lit reported range for Kona crab - don't have values for Samoan crab
     
     mh = hoenig(
       hoenig.slope = hoenig.slope,
@@ -336,8 +336,8 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'MarkRecapSurv_100'
-nsims.master = 100
+runID = 'MarkRecapSurv_50'
+nsims.master = 50
 ts = format(Sys.time(), "%d%b%Y")
 
 Name <- paste0(runID, '_', ts)

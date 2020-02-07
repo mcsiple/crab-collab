@@ -39,11 +39,11 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
   M = NULL
   S = NULL
   for (a in 1:length(age.est.vec)) {
-    #if(a<2){
+    if(a>5){ #min tagged size is 145
       M[a] = ((age.est.vec[a] + 1) ^ -zeta) / (longevDraw ^ -zeta) * mh
-     # }else{
-     #   M[a] = 1-0.53 # experiment: use values estimated from mark-recap experiment
-     # }
+      }else{
+        M[a] = 1-0.775 # 0.775(monthly monthly surv) ^12  # use values estimated from mark-recap experiment
+      }
     S[a] = exp(-M[a])*0.026 ## larval mortality rate from Quinitio et al. 2001
   }
   return(data.frame('MORTALITY' = M, 'SURVIVORSHIP' = S))
@@ -57,7 +57,7 @@ FX.func = function(size.bins,size.at.maturity){
   eggs = NULL
   for(f in 1:ncol(size.bins)){
     if(mean(size.bins[,f]) > size.at.maturity){ # MCS: using 11 at size at emergence but replace later with true value 
-      eggs[f] = (beta*mean(size.bins[,f]) - 110000) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
+      eggs[f] = (beta*mean(size.bins[,f]) - 286500) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
     } else {
       eggs[f] = 0 }
   }
