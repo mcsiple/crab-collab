@@ -336,8 +336,8 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'HeeiaSel_1000'
-nsims.master = 1000
+runID = 'GeneralSel_10K'
+nsims.master = 1e5
 ts = format(Sys.time(), "%d%b%Y")
 
 Name <- paste0(runID, '_', ts)
@@ -366,7 +366,7 @@ dim(table(params$harvConst,params$tc))
     summarize(medR = median(rVal)) )
 
 
-Fig1 <- params %>%
+Fig3 <- params %>%
   select(rVal,harvConst,tc) %>%
   ggplot(aes(x=rVal,fill=factor(tc))) +
   facet_wrap(~harvConst,scales="free_y") +
@@ -378,10 +378,25 @@ Fig1 <- params %>%
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
 
-         tiff("Fig1_500_sel.tiff",width = 8,height = 5,units = 'in',res=200)
-        Fig1
+         tiff("Fig3_10K.tiff",width = 8,height = 5,units = 'in',res=200)
+        Fig3
          dev.off()
 
+         
+# What happens when selectivity is the same as the fishpond's current practices?
+Fig4 <- params %>%
+  select(rVal,harvConst,tc) %>%
+  filter(tc==0) %>% # doesn't matter which tc because they're all the same
+  ggplot(aes(x=rVal)) +
+  facet_wrap(~harvConst,scales="free_y") +
+  scale_fill_brewer('Minimum capture size (mm)') +
+  geom_density(alpha = 0.5,fill='turquoise') +
+  geom_vline(data=medians, aes(xintercept=medR),colour='darkgrey',lty=2) +
+  xlab('Population growth rate (r)') +
+  ylab('Density') +
+  theme_sleek() +
+  geom_vline(xintercept = 0,lty=1)
+         
 # What is mean unfished growth rate?
 params %>%
   filter(harvConst==0) %>%
@@ -390,6 +405,12 @@ params %>%
             meangenTime = mean(genTime),
             meanR0 = mean(Rzero))
 
+# what is the mean growth rate at each harvConst for the heeia selectivity case?
+params %>%
+  group_by(harvConst) %>%
+  summarize(meanR = mean(rVal),
+            meangenTime = mean(genTime),
+            meanR0 = mean(Rzero)) 
 # what is the pop doubling time?
 mean(test$params$tDouble) 
 

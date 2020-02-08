@@ -97,12 +97,12 @@ OX.funcI = function(L50, beta, size.bins, K, tZero, age.est.vec) {
 makeHarvestMat = function(size.bins, harvConst, tc){
   harvestVec = rep(NA, ncol(size.bins))
   for(i in 1:ncol(size.bins)){
-     # if(max(size.bins[,i] < tc)){ #CHANGE BACK FOR OTHER EXPT
-     #   harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
-     # } else {
-     #   harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
-     # }
-    harvestVec[i] = 1 - harvConst*HeeiaSel[i]
+     if(max(size.bins[,i] < tc)){ #CHANGE BACK FOR OTHER EXPT
+       harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
+     } else {
+       harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
+     }
+   # harvestVec[i] = 1 - harvConst*HeeiaSel[i] #CHANGE BACK FOR OTHER EXPT
   }
   # Define harvest matrix
   HarvestMat = matrix(0,ncol(size.bins),ncol(size.bins))
