@@ -51,18 +51,31 @@ crabdat %>%
 ```
 Selectivity for each size class is as follows:
 ```{r, echo=F}
-Linf = 211
-L95 = 160 #1st discontinuous break
-Lmin = min(crabdat$CWid_LR_mm,na.rm=T)
-L50 = (Linf+Lmin)/2
+Linf = 310
+L95 = 195 #1st discontinuous break
+keptcrabs <- crabdat %>% filter(Keep_Release_Dead=="Keep")
+Lmin = min(keptcrabs$CWid_LR_mm,na.rm=T)
+L50 = (L95+Lmin)/2
 size.bins <- data.frame(matrix(c(11, 60, 61, 80, 81, 100, 101, 120, 121, 140,141, 160, 161, 180, 181, Linf, Linf + 1, 250), nrow = 2))
 S <- vector()
 L <- min(size.bins[1,]):max(size.bins[2,])
+
 for(i in 1:length(L)){
   length.frac <- (L[i] - L50)/(L95-L50)
   S[i] <- 1 / (1+exp(-1*log(19) * length.frac))
 }
-plot(L,S)
+
+plotdf <- data.frame(L=L,S=S)
+linedf <- data.frame(L = apply(size.bins,MARGIN = 2,FUN = median)) %>% 
+  mutate(S = 1/(1+exp(-1*log(19)*((L-L50)/(L95-L50)) ))  )
+ggplot(plotdf,aes(x=L,y=S)) +
+  geom_line()+
+  #geom_vline(data=linedf,aes(xintercept = L),colour="red",lty=2) +
+  geom_point(data=linedf,aes(x=L,y=S),colour="red") +
+  theme_classic(base_size = 14) +
+  xlab("Length (mm)") +
+  ylab("Fishery selectivity")
+ 
 ```
 #### Minimum size at capture in this study
 ```{r}

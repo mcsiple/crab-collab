@@ -9,7 +9,6 @@ K = c(0.57,1.38)[1] # from S. serrata, Moknes et al. 2014 (first value)
 tZero = -0.019       ## from S. serrata, Moknes et al. 2014
 
 ## longevity parameters
-# maxage = 16 ## O'Neill
 # longevDraw = maxage ## just for syntax
 
 ## Growth Increment for Logit(Pmolt); derived from vonB; Chen & Kennelly (1999)
@@ -24,8 +23,8 @@ size.at.maturity = 100 # 91-100 mm (females, Prasad & Neelakantan 1989)
 L50 = (91+100)/2 ## Midpoint of size at maturity from Prasad & Neelakantan (1989)
 
 ## slope of length-fecundity equation 
-## For Samoan crab, 15.55 x 1000 eggs increase per mm of carapace width - Sarower et al. (2013), Bangladesh - check w Maia ( 1000 eggs per mm is Kona crab value beta = 2081.8; from Onizuka 1972)
-beta = 15.55 * 1e3 #1500 
+## For Samoan crab, 15.55 x 100 eggs increase per mm of carapace width - Sarower et al. (2013), Bangladesh - check w Maia ( 1000 eggs per mm is Kona crab value beta = 2081.8; from Onizuka 1972)
+beta = 15550 #1500 
 ## fixed sex proportion of females - fixed by me (Megsie) because we don't know the sex ratio...
 SR = 0.5
 
@@ -52,10 +51,9 @@ bissectIters <- 200
 # Define convergence level in the Bissection method
 bissectConv <- 0.00001
 
-
 # VECTOR OF SIZE AT CAPTURE CUTOFFS ---------------------------------------
 tc.vector = c(0,76,L50,152) ## all ages, smallest observed catch (this study), L50, legal size for Samoan crab from HI state (6 in = 152.4 mm)
-
+HeeiaSel <- c(0, 0, 0, 0, 0.02, 0.14, 0.58, 1, 1) # discretized version of logistic sel curve
 
 # make INITS object to save later -----------------------------------------
 inits = list( 'TIMESTAMP' = as.character(date()),

@@ -74,6 +74,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
     
     ## Run Pop Model
     longevDraw = runif(1,7,16) ## lit reported range for Kona crab - don't have values for Samoan crab
+    # longevDraw = 16
     
     mh = hoenig(
       hoenig.slope = hoenig.slope,
@@ -84,16 +85,15 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
     nat.survivorship.temp = nat.mort(
       longevDraw = longevDraw,
       zeta = 0.3,
-      mh = mh,
+      mh =mh,
       age.est.vec = 1:longevDraw
-    )[, 'SURVIVORSHIP'] ## values from Oneill; age based matrix
+    )[, 'SURVIVORSHIP'] 
    
-    
-    # longevDraw = 16
+
     # Natural Mortality: Randomly choose survivorship from uniform distribution, dims of longevity (which varies)
     #SurvAge <- sort(runif(longevDraw, 0.01, 0.04), decreasing = F)
     SurvAge <- nat.survivorship.temp
-    # cat("SurvAge  ",SurvAge,"\n")
+    #cat("SurvAge  ",SurvAge,"\n")
     # survPlot(SurvAge, size.matrix)
      
     ## N is placeholder array of 1
@@ -105,7 +105,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
       apply(.,2,mean) %>%
       t() %>%
       as.data.frame()
-    surv.vector[1] <- 0.026 # larval survival: from Quinitio et al 2001; 2.6 +/- 0.8 %  (spanner crab value 0.064)
+    surv.vector[1] <- 0.0001 # from Quinitio et al 2001; daily survival .266--> annual survival 0.0001 (or even less - but have to change it )  (spanner crab value 0.064)
     colnames(surv.vector) <- NULL
     
     ## Fecundity
@@ -336,8 +336,8 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'MarkRecapSurv_50'
-nsims.master = 50
+runID = 'HeeiaSel_1000'
+nsims.master = 1000
 ts = format(Sys.time(), "%d%b%Y")
 
 Name <- paste0(runID, '_', ts)
@@ -378,15 +378,17 @@ Fig1 <- params %>%
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
 
-        # tiff("Fig1_growth.tiff",width = 8,height = 5,units = 'in',res=200)
+         tiff("Fig1_500_sel.tiff",width = 8,height = 5,units = 'in',res=200)
         Fig1
-        # dev.off()
+         dev.off()
 
 # What is mean unfished growth rate?
 params %>%
   filter(harvConst==0) %>%
   group_by(tc) %>%
-  summarize(meanR = mean(rVal))
+  summarize(meanR = mean(rVal),
+            meangenTime = mean(genTime),
+            meanR0 = mean(Rzero))
 
 # what is the pop doubling time?
 mean(test$params$tDouble) 
@@ -408,7 +410,10 @@ crabdat %>%
   filter(Tag_YNNew =="Yes") %>%
   summarize(min.tagged.size = min(CWid_LR_mm))
   
-
+# What is the avg min survivorship?
+test$outUs %>%
+  group_by(tc) %>%
+  summarize(minAvgSurv = min(Us))
 
 harvestPlot(OutLeslieMC.FILE = params, Name = Name, 
             form = 'png') ## save r values vs h,tc plot

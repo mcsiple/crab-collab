@@ -24,6 +24,17 @@ estimate.age = function(size.bins, Linf, K, tZero, longevDraw){
   # age.est.vec[ncol(size.bins)] = longevDraw ## the last value is always the longevity
   return(age.est.vec)
 }
+
+daily.to.annual <- function(md){ # convert daily mort rate to annual
+  Ma <- 1-exp((log(1-md))/(1/365))
+  return(Ma)
+}
+
+monthly.to.annual <- function(mm){ # convert monthly mort rate to annual
+  Ma <- 1-exp((log(1-mm))/(1/12))
+  return(Ma)
+}
+
 ## FUNCTION HOENIG - INTERNAL USE ONLY
 ## PURPOSE: calculates mh for use in natural mortality
 ## O'Neill MH is 0.277; calculated from Hoening 1983 (lnZ = a + b lnTmax) with max longevity = 16y & using the "all"
@@ -39,13 +50,15 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
   M = NULL
   S = NULL
   for (a in 1:length(age.est.vec)) {
-    if(a>5){ #min tagged size is 145
+    if(a<5){ # min tagged size is 145 so est'd rate only applies to ind's this size and bigger
       M[a] = ((age.est.vec[a] + 1) ^ -zeta) / (longevDraw ^ -zeta) * mh
       }else{
-        M[a] = 1-0.775 # 0.775(monthly monthly surv) ^12  # use values estimated from mark-recap experiment
+        M[a] = monthly.to.annual(1-0.93)  # 0.93 is the lo95%ci of monthly surv estimated from mark-recap
       }
-    S[a] = exp(-M[a])*0.026 ## larval mortality rate from Quinitio et al. 2001
+    S[a] = exp(-M[a])
   }
+  M[1] <-  0.9999 ## daily to annual returns 1 for annual larval mortality; here we just use something very high and close to 1. larval mortality rate from Quinitio et al. 2001 is 0.266 d^-1
+  S[1] <- exp(-M[1])
   return(data.frame('MORTALITY' = M, 'SURVIVORSHIP' = S))
 }
 
@@ -57,7 +70,7 @@ FX.func = function(size.bins,size.at.maturity){
   eggs = NULL
   for(f in 1:ncol(size.bins)){
     if(mean(size.bins[,f]) > size.at.maturity){ # MCS: using 11 at size at emergence but replace later with true value 
-      eggs[f] = (beta*mean(size.bins[,f]) - 286500) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
+      eggs[f] = 0.5*(beta*mean(size.bins[,f]) - 286500) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
     } else {
       eggs[f] = 0 }
   }
@@ -84,11 +97,12 @@ OX.funcI = function(L50, beta, size.bins, K, tZero, age.est.vec) {
 makeHarvestMat = function(size.bins, harvConst, tc){
   harvestVec = rep(NA, ncol(size.bins))
   for(i in 1:ncol(size.bins)){
-    if(max(size.bins[,i] < tc)){
-      harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
-    } else {
-      harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
-    }
+     # if(max(size.bins[,i] < tc)){ #CHANGE BACK FOR OTHER EXPT
+     #   harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
+     # } else {
+     #   harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
+     # }
+    harvestVec[i] = 1 - harvConst*HeeiaSel[i]
   }
   # Define harvest matrix
   HarvestMat = matrix(0,ncol(size.bins),ncol(size.bins))
