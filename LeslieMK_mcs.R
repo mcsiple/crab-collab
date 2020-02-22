@@ -107,7 +107,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
       as.data.frame()
     surv.vector[1] <- 0.0001 # from Quinitio et al 2001; daily survival .266--> annual survival 0.0001 (or even less - but have to change it )  (spanner crab value 0.064)
     colnames(surv.vector) <- NULL
-    
+    #print(surv.vector)
     ## Fecundity
     FX = FX.func(size.bins,size.at.maturity) ## just expected egg output
     # EPR = ceiling(abs(rnorm(1,1,1)))
@@ -336,8 +336,8 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'GeneralSel_10K'
-nsims.master = 1e5
+runID = 'GeneralSel_500'
+nsims.master = 500
 ts = format(Sys.time(), "%d%b%Y")
 
 Name <- paste0(runID, '_', ts)
@@ -350,9 +350,8 @@ writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & ri
 ## Generate summary text files (this happens instead of writing all raw data)
 makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 
 makeSADStats(test, Name = Name, write.file = T) 
-makeSADStats(test, Name = Name, write.file = T) 
-makeElastStats(test, Name = Name, write.file = T)
-makeUsStats(test, Name = Name, write.file = T) 
+makeElastStats(test, Name = Name, write.file = T) 
+makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality 
 
 ## quick inspection
 params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
@@ -360,11 +359,19 @@ params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.t
 head(params)
 
 dim(table(params$harvConst,params$tc))
+
+
+# Plots and outputs -------------------------------------------------------
+runID = 'GeneralSel_500'
+ts = "18Feb2020"
+Name <- paste0(runID, '_', ts)
+params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                    header = T,sep = ",")
+head(params)
 # Check mean rval at each harvest rate
 ( medians <- params %>%
     group_by(harvConst,tc) %>%
     summarize(medR = median(rVal)) )
-
 
 Fig3 <- params %>%
   select(rVal,harvConst,tc) %>%
@@ -378,25 +385,45 @@ Fig3 <- params %>%
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
 
-         tiff("Fig3_10K.tiff",width = 8,height = 5,units = 'in',res=200)
-        Fig3
-         dev.off()
+# tiff("Fig3_500_GenSel.tiff",width = 8,height = 5,units = 'in',res=200)
+# Fig3
+# dev.off()
 
-         
+pdf("Fig3.pdf",width = 8,height = 5)
+Fig3
+dev.off()
+
+        
+        
+                 
 # What happens when selectivity is the same as the fishpond's current practices?
-Fig4 <- params %>%
+# Get sims
+  runID <- 'HeeiaSel_1000'
+  ts <- "07Feb2020"
+  Name <- paste0(runID, '_', ts)
+  
+  # Load outputs
+  params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                      header = T,sep = ",")
+  
+  
+  Fig4 <- params %>%
   select(rVal,harvConst,tc) %>%
   filter(tc==0) %>% # doesn't matter which tc because they're all the same
   ggplot(aes(x=rVal)) +
   facet_wrap(~harvConst,scales="free_y") +
   scale_fill_brewer('Minimum capture size (mm)') +
   geom_density(alpha = 0.5,fill='turquoise') +
-  geom_vline(data=medians, aes(xintercept=medR),colour='darkgrey',lty=2) +
   xlab('Population growth rate (r)') +
   ylab('Density') +
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
-         
+      
+  pdf("Fig4.pdf",width = 8,height = 5)
+  Fig4
+  dev.off()  
+  
+     
 # What is mean unfished growth rate?
 params %>%
   filter(harvConst==0) %>%
