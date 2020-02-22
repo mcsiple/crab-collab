@@ -35,19 +35,23 @@ $$
 where $L$ is the length at which selectivity is being estimated, $L_{S50}$ is the length at 50% selectivity, and $L_{S95}$ is the length at 95% selectivity. Following Nadon (2017), we used the first discontinuous break in size composition of kept male crabs as the size at 95% selectivity ($L_{S95}$= 169 mm), and the midpoint between the minimum caught size and $L_{S95}$ as the estimate of $L_{S50}$.
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6,warning=FALSE}
-crabdat %>%
-  filter(!Sex %in% c("FJ","J","NM")
-         & !is.na(Sex)) %>%
-  ggplot(aes(x=CWid_LR_mm)) + 
-  geom_histogram(bins=30) +
-  geom_vline(xintercept = 160,
-             lty=2,
-             colour="red") +
-  facet_wrap(~Sex) +
-  theme_classic(base_size = 14) +
-  xlab("Carapace width (mm)") +
-  ylab("Count") +
-  ggtitle("Kept crabs (2018-2019)")
+fig1 <- crabdat %>%
+    filter(!Sex %in% c("FJ","J","NM")
+           & !is.na(Sex)) %>%
+    ggplot(aes(x=CWid_LR_mm)) + 
+    geom_histogram(bins=30) +
+    geom_vline(xintercept = 160,
+               lty=2,
+               colour="red") +
+    facet_wrap(~Sex) +
+    theme_classic(base_size = 14) +
+    xlab("Carapace width (mm)") +
+    ylab("Count") +
+    ggtitle("Kept crabs (2018-2019)")
+
+pdf("Fig1.pdf",width = 8,height=4.5,useDingbats = F)
+fig1
+dev.off()
 ```
 Selectivity for each size class is as follows:
 ```{r, echo=F}
@@ -68,14 +72,27 @@ for(i in 1:length(L)){
 plotdf <- data.frame(L=L,S=S)
 linedf <- data.frame(L = apply(size.bins,MARGIN = 2,FUN = median)) %>% 
   mutate(S = 1/(1+exp(-1*log(19)*((L-L50)/(L95-L50)) ))  )
-ggplot(plotdf,aes(x=L,y=S)) +
-  geom_line()+
-  #geom_vline(data=linedf,aes(xintercept = L),colour="red",lty=2) +
-  geom_point(data=linedf,aes(x=L,y=S),colour="red") +
-  theme_classic(base_size = 14) +
-  xlab("Length (mm)") +
-  ylab("Fishery selectivity")
+
+knife_edges <- data.frame(L=seq(min(size.bins[1,]),max(size.bins[2,]),1))%>%
+                      mutate(S1 = ifelse(L<76,0,1),
+                             S2 = ifelse(L<95.5,0,1),
+                             S3 = ifelse(L<152,0,1))
+rulecolors <- RColorBrewer::brewer.pal(n = 4,name = "Blues")
+
+Fig2 <- ggplot(plotdf,aes(x=L,y=S)) +
+        geom_line() +
+        #geom_vline(data=linedf,aes(xintercept = L),colour="red",lty=2) +
+        geom_point(data=linedf,aes(x=L,y=S),colour="red") +
+        geom_line(data=knife_edges,aes(x=L,y=S1),colour=rulecolors[2]) +
+        geom_line(data=knife_edges,aes(x=L,y=S2),colour=rulecolors[3]) +
+        geom_line(data=knife_edges,aes(x=L,y=S3),colour=rulecolors[4]) +  
+        theme_classic(base_size = 14) +
+        xlab("Length (mm)") +
+        ylab("Fishery selectivity")
  
+pdf("Fig2.pdf",width = 6,height = 4,useDingbats = F)
+Fig2
+dev.off()
 ```
 #### Minimum size at capture in this study
 ```{r}

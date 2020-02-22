@@ -1,0 +1,20 @@
+inits 
+TIMESTAMP Thu Jan 30 11:28:01 2020 
+Linf 211 
+K 0.3 
+achen [growth increment for logit p(molt)] 54.68736 
+bchen [growth increment for logit p(molt)] -0.2591818 
+sdmolt 10 
+tZero -0.1 
+L50 90 
+hoenig.slope -0.982 
+hoenig.int 1.44 
+beta 1500 
+SR [sex ratio] 0.5 
+harvest.breaks 10 
+UHigh 0.9 
+Ulow 0 
+bissectIters 200 
+bissectConv 1e-05 
+tc.vector 0 76 90 152 
+NSIMS 10
