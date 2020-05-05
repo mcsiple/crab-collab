@@ -1,12 +1,12 @@
-## CENTRAL PARAMS FILE FOR KONA CRAB DEMOGRAPHY
+## CENTRAL PARAMS FILE FOR SAMOAN CRAB DEMOGRAPHY
 ## FIXED POINT ESTIMATES
 
 
 # GROWTH ------------------------------------------------------------------
-Linf = 310  # from S. serrata, Moknes et al. 2014
-K = c(0.57,1.38)[1] # from S. serrata, Moknes et al. 2014 (first value)
+Linf = 310  # from S. serrata, Moknes et al. 2015
+K = c(0.57,1.38)[1] # from S. serrata, Moknes et al. 2015 (first value)
                     ## S. serrata, Indonesia, La Sara (2010): 1.38
-tZero = -0.019       ## from S. serrata, Moknes et al. 2014
+tZero = -0.019       ## from S. serrata, Moknes et al. 2015
 
 ## longevity parameters
 # longevDraw = maxage ## just for syntax
@@ -23,9 +23,9 @@ size.at.maturity = 100 # 91-100 mm (females, Prasad & Neelakantan 1989)
 L50 = (91+100)/2 ## Midpoint of size at maturity from Prasad & Neelakantan (1989)
 
 ## slope of length-fecundity equation 
-## For Samoan crab, 15.55 x 100 eggs increase per mm of carapace width - Sarower et al. (2013), Bangladesh - check w Maia ( 1000 eggs per mm is Kona crab value beta = 2081.8; from Onizuka 1972)
+## For Samoan crab, 15.55 x 100 eggs increase per mm of carapace width - Sarower et al. (2013), Bangladesh (1000 eggs per mm is Kona crab value beta = 2081.8; from Onizuka 1972)
 beta = 15550 #1500 
-## fixed sex proportion of females - fixed by me (Megsie) because we don't know the sex ratio...
+## fixed sex proportion of females - fixed by me (Megsie) because we don't know the sex ratio.
 SR = 0.5
 
 
