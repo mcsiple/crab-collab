@@ -336,9 +336,9 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'GeneralSel_500'
+runID = 'R1_500'
 nsims.master = 500
-ts = format(Sys.time(), "%d%b%Y")
+ts = format(Sys.time(), "%d%b_%Y")
 
 Name <- paste0(runID, '_', ts)
 p <- proc.time()
@@ -362,8 +362,8 @@ dim(table(params$harvConst,params$tc))
 
 
 # Plots and outputs -------------------------------------------------------
-runID = 'GeneralSel_500'
-ts = "18Feb2020"
+runID = 'R1_500'
+#ts = format(Sys.time(), "%d%b_%Y")
 Name <- paste0(runID, '_', ts)
 params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
                     header = T,sep = ",")
@@ -386,7 +386,7 @@ Fig3 <- params %>%
   geom_vline(xintercept = 0,lty=1)
 
 # tiff("Fig3_500_GenSel.tiff",width = 8,height = 5,units = 'in',res=200)
-# Fig3
+ Fig3
 # dev.off()
 
 pdf("Fig3.pdf",width = 8,height = 5)
@@ -423,7 +423,7 @@ dev.off()
   Fig4
   dev.off()  
   
-     
+
 # What is mean unfished growth rate?
 params %>%
   filter(harvConst==0) %>%
