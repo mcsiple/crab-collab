@@ -336,8 +336,8 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'R1_500'
-nsims.master = 500
+runID = 'R1_1000'
+nsims.master = 1000
 ts = format(Sys.time(), "%d%b_%Y")
 
 Name <- paste0(runID, '_', ts)
@@ -362,8 +362,8 @@ dim(table(params$harvConst,params$tc))
 
 
 # Plots and outputs -------------------------------------------------------
-runID = 'R1_500'
-#ts = format(Sys.time(), "%d%b_%Y")
+runID = 'R1_1000'
+ts = '12May2020'
 Name <- paste0(runID, '_', ts)
 params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
                     header = T,sep = ",")
