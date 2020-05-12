@@ -4,10 +4,15 @@
 
 # GROWTH ------------------------------------------------------------------
 Linf = 200  # from S. serrata, estimated from Bonine et al. 2008
-K = c(0.0045,0.57,1.38)[1] # from S. serrata, 
-                    ## Moknes et al. 2015 (2nd value)
-                    ## S. serrata, Indonesia, La Sara (2010): 1.38
+K = c(0.0045,0.57,1.38)[1] # from S. serrata,
+# Moknes et al. 2015 (2nd value)
+# S. serrata, Indonesia, La Sara (2010): 1.38
 tZero = -0.0015     ## fixed
+
+# First submission:
+# Linf = 310 #Moksnes et al 2015
+# K = 0.57 #Moksnes et al 2015
+# tZero = -0.019 #Moksnes et al 2015
 
 ## longevity parameters
 # longevDraw = maxage ## just for syntax
