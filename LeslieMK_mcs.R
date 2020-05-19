@@ -336,7 +336,7 @@ runLeslieMC <- function(nsims.master, harvest.breaks) {
 
 # Run & plot outcomes of Leslie matrix simulation.
 
-runID = 'R1_1000'
+runID = 'HeeiaSel_1000'
 nsims.master = 1000
 ts = format(Sys.time(), "%d%b_%Y")
 
@@ -389,7 +389,7 @@ Fig3 <- params %>%
  Fig3
 # dev.off()
 
-pdf("Fig3.pdf",width = 8,height = 5)
+pdf("Fig3_R1.pdf",width = 8,height = 5)
 Fig3
 dev.off()
 
@@ -399,7 +399,7 @@ dev.off()
 # What happens when selectivity is the same as the fishpond's current practices?
 # Get sims
   runID <- 'HeeiaSel_1000'
-  ts <- "07Feb2020"
+  ts <- '12May_2020'
   Name <- paste0(runID, '_', ts)
   
   # Load outputs
@@ -419,7 +419,7 @@ dev.off()
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
       
-  pdf("Fig4.pdf",width = 8,height = 5)
+  pdf("Fig4_R1.pdf",width = 8,height = 5)
   Fig4
   dev.off()  
   

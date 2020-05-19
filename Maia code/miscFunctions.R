@@ -6,6 +6,7 @@
 
 library(ggplot2)
 library(Rmisc)
+
 ## FUNCTIONS TO ESTIMATE DEMOGRAPHIC PARAMETERS TO INPUT TO LESLIE MATRIX
 source(here::here('Maia code','sizeMatrix.R')) ## generate the size matrix separately
 
@@ -69,7 +70,7 @@ nat.mort = function(longevDraw, zeta, mh, age.est.vec) {
 FX.func = function(size.bins,size.at.maturity){
   eggs = NULL
   for(f in 1:ncol(size.bins)){
-    if(mean(size.bins[,f]) > size.at.maturity){ # MCS: using 11 at size at emergence but replace later with true value 
+    if(mean(size.bins[,f]) > size.at.maturity){ # MCS: using 11 as size at emergence but replace later with true value 
       eggs[f] = 0.5*(beta*mean(size.bins[,f]) - 286500) # intercept from Sarower & Sabir 2013 (286.5 * 1e3)
     } else {
       eggs[f] = 0 }
@@ -97,12 +98,12 @@ OX.funcI = function(L50, beta, size.bins, K, tZero, age.est.vec) {
 makeHarvestMat = function(size.bins, harvConst, tc){
   harvestVec = rep(NA, ncol(size.bins))
   for(i in 1:ncol(size.bins)){
-     if(max(size.bins[,i] < tc)){ #CHANGE BACK FOR OTHER EXPT
-       harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
-     } else {
-       harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
-     }
-   # harvestVec[i] = 1 - harvConst*HeeiaSel[i] #CHANGE BACK FOR OTHER EXPT
+     # if(max(size.bins[,i] < tc)){ #CHANGE BACK FOR OTHER EXPT
+     #   harvestVec[i] = 1 ## 100% survivorship for those smaller than selected for; selectivity = 1
+     # } else {
+     #   harvestVec[i] = 1 - harvConst ## will apply whatever fishing pressure this is to all selected classes
+     # }
+     harvestVec[i] = 1 - harvConst*HeeiaSel[i] #CHANGE BACK FOR OTHER EXPT
   }
   # Define harvest matrix
   HarvestMat = matrix(0,ncol(size.bins),ncol(size.bins))

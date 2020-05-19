@@ -61,7 +61,7 @@ for (i in 1:ncol(size.bins)) {
   # m[i] = 1 / (1 + exp(csiddeek*(tau[i]-dsiddeek)))
   ## ! APPROACH II, find one-year molt probabilities for each size class based on Chen's estimate of 1-year molt
   #prob.
-  m[i] = (0.0053*tau[i]^2 + 0.028*tau[i] + 6.35)^(-1) # MCS: changed this to intermolt period as function of size, based on a paper by Moksnes et al. 2014
+  m[i] = (0.0053*tau[i]^2 + 0.028*tau[i] + 6.35)^(-1) # MCS: changed this to intermolt period as function of size, based on Moksnes et al. 2015
  
   ## APPROACH III, all probabilities are I
   # m[i] = 1
