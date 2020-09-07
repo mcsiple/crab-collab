@@ -1,0 +1,278 @@
+---
+title: "CrabCollabAll"
+author: "Megsie Siple"
+date: "9/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(here)
+library(Rmisc)
+library(tidyverse)
+library(ggsidekick) # just for plots: devtools::install_github("seananderson/ggsidekick")
+
+source(here::here("Maia code","paramsScenarios.R")) # load params
+source(here::here("Maia code","sizeMatrix.R")) # generate size transition matrix
+source(here::here("Maia code","miscFunctions.R")) #
+source(here::here("Maia code","runLeslieMC.R"))
+
+crabdat <- read.csv(here::here('Heeia_crabdata_Apr2019.csv'))
+
+
+```
+
+## Simulations
+
+The simulations are below; they are commented out because they take a while. To run the sims that are in the paper, un-comment and re-run.
+
+```{r heeiasel}
+# runID = 'HeeiaSel_1000'
+# nsims.master = 1000
+# ts = format(Sys.time(), "%d%b_%Y")
+# 
+# Name <- paste0(runID, '_', ts)
+# p <- proc.time()
+# test <- runLeslieMC(nsims.master <- nsims.master,
+#                     harvest.breaks = harvest.breaks)
+# proc.time() - p
+# 
+# writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
+# ## Generate summary text files (this happens instead of writing all raw data)
+# makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 
+# makeSADStats(test, Name = Name, write.file = T) 
+# makeElastStats(test, Name = Name, write.file = T) 
+# makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality 
+# 
+# ## quick inspection
+# params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+#                     header = T,sep = ",")
+# head(params)
+# 
+# dim(table(params$harvConst,params$tc))
+#### Different selectivities ("Misty mountains")
+# runID = 'R1_1000'
+# nsims.master = 1000
+# ts = format(Sys.time(), "%d%b_%Y")
+# 
+# Name <- paste0(runID, '_', ts)
+# p <- proc.time()
+# test <- runLeslieMC(nsims.master <- nsims.master,
+#                     harvest.breaks = harvest.breaks)
+# proc.time() - p
+# 
+# writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
+# ## Generate summary text files (this happens instead of writing all raw data)
+# makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 
+# makeSADStats(test, Name = Name, write.file = T) 
+# makeElastStats(test, Name = Name, write.file = T) 
+# makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality 
+# 
+# ## quick inspection
+# params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+#                     header = T,sep = ",")
+# head(params)
+# 
+# dim(table(params$harvConst,params$tc))
+```
+
+## Figures
+
+The figures in the paper, with the figure author in parentheses, are as follows:
+
+1. Map of the fishpond with schematic (KALEO)
+2. Size distribution of caught crabs (greyscale, with L95 etc) (MEGSIE)
+3. CPUE over time (lines) (KALEO)
+4. Total harvest per month (boxplots) (KALEO)
+5. Weight vs. carapace width (KALEO)
+6. Logistic selectivity plot (MEGSIE)
+7. Heeia / turquoise distributions plot (MAIA)
+8. "Misty mountains" plot with strict size cutoffs (MAIA)
+
+### Figure 2
+```{r, echo=FALSE, fig.width=8, fig.height=6,warning=FALSE}
+all <- crabdat %>%
+  filter(!Sex %in% c("FJ","J","NM")
+         & !is.na(Sex)) %>%
+  mutate(Sex = recode(Sex,`F` = "Female",M = "Male")) 
+kept <- all %>%
+  filter(Keep_Release_Dead=='Keep')
+
+fig2 <- all %>%
+  ggplot(aes(x=CWid_LR_mm)) + 
+  geom_histogram(bins=30,alpha=.5) +
+  geom_histogram(data=kept,aes(x=CWid_LR_mm)) +
+  annotate('text',x=195,y=104,label = "paste(L[S95])",parse = TRUE,size = 5) +
+  annotate('text',x=167.5,y=104,label = "paste(L[S50])",parse = TRUE,size = 5) +
+  geom_segment(x=195,y=0,xend=195,yend=100,lty=2)+
+  geom_segment(x=167.5,y=0,xend=167.5,yend=100,lty=2)+
+  facet_wrap(~Sex) +
+  ggsidekick::theme_sleek(base_size = 14) +
+  xlab("Carapace width (mm)") +
+  ylab("Count")
+
+#pdf("Fig2.pdf",width = 8,height=4.5,useDingbats = F)
+fig2
+#dev.off()
+```
+
+### Figure 6
+This figure shows the selectivity curve for the fishpond, and the size limits that we tested.
+
+```{r}
+Linf = 200
+L95 = 195 #1st discontinuous break
+keptcrabs <- crabdat %>% filter(Keep_Release_Dead=="Keep")
+Lmin = min(keptcrabs$CWid_LR_mm,na.rm=T)
+L50 = (L95+Lmin)/2
+size.bins <- data.frame(matrix(c(11, 60, 61, 80, 81, 100, 101, 120, 121, 140,141, 160, 161, 180, 181, Linf, Linf + 1, 250), nrow = 2))
+S <- vector()
+L <- min(size.bins[1,]):max(size.bins[2,])
+
+for(i in 1:length(L)){
+  length.frac <- (L[i] - L50)/(L95-L50)
+  S[i] <- 1 / (1+exp(-1*log(19) * length.frac))
+}
+
+plotdf <- data.frame(L=L,S=S)
+linedf <- data.frame(L = apply(size.bins,MARGIN = 2,FUN = median)) %>% 
+  mutate(S = 1/(1+exp(-1*log(19)*((L-L50)/(L95-L50)) ))  )
+
+knife_edges <- data.frame(L=seq(min(size.bins[1,]),max(size.bins[2,]),1))%>%
+                      mutate(S1 = ifelse(L<76,0,1),
+                             S2 = ifelse(L<95.5,0,1),
+                             S3 = ifelse(L<152,0,1))
+rulecolors <- RColorBrewer::brewer.pal(n = 4,name = "Blues")
+
+Fig6 <- ggplot(plotdf,aes(x=L,y=S)) +
+        geom_line() +
+        geom_point(data=linedf,aes(x=L,y=S),colour="red") +
+        geom_line(data=knife_edges,aes(x=L,y=S1),colour=rulecolors[2]) +
+        geom_line(data=knife_edges,aes(x=L,y=S2),colour=rulecolors[3]) +
+        geom_line(data=knife_edges,aes(x=L,y=S3),colour=rulecolors[4]) +  
+        theme_classic(base_size = 14) +
+        xlab("Length (mm)") +
+        ylab("Fishery selectivity")
+ 
+#pdf("Fig6.pdf",width = 6,height = 4,useDingbats = F)
+Fig6
+#dev.off()
+```
+
+
+### Figure 7
+```{r}
+ runID <- 'HeeiaSel_1000'
+  ts <- '12May_2020'
+  Name <- paste0(runID, '_', ts)
+  
+  # Load outputs
+  params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                      header = T,sep = ",")
+  
+  dtp <-  params %>%
+    select(rVal,harvConst,tc) %>%
+    filter(tc==0) # doesn't matter which tc because they're all the same
+  
+  #dtp
+  Fig7 <- dtp %>% 
+  ggplot(aes(x=rVal)) +
+  facet_wrap(~harvConst,scales="free_y") +
+  scale_fill_brewer('Minimum \ncapture \nsize (mm)') +
+  geom_density(alpha = 0.5,fill='turquoise') +
+  xlim(c(-2,1)) +
+  xlab('Population growth rate (r)') +
+  ylab('Density') +
+  theme_sleek() +
+  geom_vline(xintercept = 0,lty=1)
+      
+#  pdf("Fig7_R2.pdf",width = 10,height = 5, useDingbats = FALSE)
+  Fig7
+#  dev.off()  
+```
+
+
+### Figure 8
+This figure shows the fixed size limits we tested, including the state size limit. 
+
+```{r}
+runID = 'R1_1000'
+ts = '12May_2020'
+Name <- paste0(runID, '_', ts)
+params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                    header = T,sep = ",")
+head(params)
+# Check mean rval at each harvest rate
+( medians <- params %>%
+    group_by(harvConst,tc) %>%
+    summarize(medR = median(rVal)) )
+
+Fig8 <- params %>%
+  select(rVal,harvConst,tc) %>%
+  ggplot(aes(x=rVal,fill=factor(tc))) +
+  xlim(c(-2,1)) +
+  facet_wrap(~harvConst) +
+  scale_fill_brewer('Minimum \ncapture \nsize (mm)') +
+  geom_density(alpha = 0.5) +
+  geom_vline(data=medians, aes(xintercept=medR),colour='darkgrey',lty=2) +
+  xlab('Population growth rate (r)') +
+  ylab('Density') +
+  theme_sleek() +
+  geom_vline(xintercept = 0,lty=1)
+
+# tiff("Fig3_1000_GenSel.tiff",width = 8,height = 5,units = 'in',res=200)
+ Fig8
+# dev.off()
+```
+
+
+### Tidbits for the text
+Normally I would write the text with these variables just effortlessly embedded in the text, but these will have to do. Double check that the `params` object is the one you want before running. 
+
+```{r}
+params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                     header = T,sep = ",")
+
+# What is mean unfished growth rate?
+params %>%
+  filter(harvConst==0) %>%
+  group_by(tc) %>%
+  summarize(meanR = mean(rVal),
+            meangenTime = mean(genTime),
+            meanR0 = mean(Rzero))
+
+# what is the mean growth rate at each harvConst for the heeia selectivity case?
+params %>%
+  group_by(harvConst) %>%
+  summarize(meanR = mean(rVal),
+            meangenTime = mean(genTime),
+            meanR0 = mean(Rzero)) 
+# what is the pop doubling time?
+mean(params$tDouble) 
+
+# how many combos of harvConst and min cap size?
+length(table(unique(params[,c('tc','harvConst')])))
+
+# which harvest rate produces no negative grwoth rates?
+params %>%
+  group_by(harvConst,tc) %>%
+  summarize(min(rVal)) %>%
+  as.data.frame()
+
+# what is the minimum size captured in the data?
+76
+
+# what is the min tagged size (for putting survivorship from CJS into the matrix model)
+crabdat %>%
+  filter(Tag_YNNew =="Yes") %>%
+  summarize(min.tagged.size = min(CWid_LR_mm))
+  
+# What is the avg min survivorship?
+outUs <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_outUS.txt'),
+                    header = T,sep = ",")
+
+outUs %>%
+  group_by(tc) %>%
+  summarize(minAvgSurv = min(Us))
+
+```
