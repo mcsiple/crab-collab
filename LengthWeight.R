@@ -15,6 +15,7 @@ dat <- dat %>%
 
 # Calculate weight in g instead of kg
 dat <- dat %>%
+  mutate(Weight_calc_kg = as.numeric(Weight_calc_kg)) %>%
   mutate(Weight_calc_g = Weight_calc_kg * 1000)
 
 # The classic equation for the relationship between length and weight is W = aL^b, where W is the weight and L is the "length" (in this case, cw).
