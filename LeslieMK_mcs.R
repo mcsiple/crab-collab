@@ -363,7 +363,7 @@ dim(table(params$harvConst,params$tc))
 
 # Plots and outputs -------------------------------------------------------
 runID = 'R1_1000'
-ts = '12May2020'
+ts = '12May_2020'
 Name <- paste0(runID, '_', ts)
 params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
                     header = T,sep = ",")
@@ -376,8 +376,9 @@ head(params)
 Fig3 <- params %>%
   select(rVal,harvConst,tc) %>%
   ggplot(aes(x=rVal,fill=factor(tc))) +
-  facet_wrap(~harvConst,scales="free_y") +
-  scale_fill_brewer('Minimum capture size (mm)') +
+  xlim(c(-2,1)) +
+  facet_wrap(~harvConst) +
+  scale_fill_brewer('Minimum \ncapture \nsize (mm)') +
   geom_density(alpha = 0.5) +
   geom_vline(data=medians, aes(xintercept=medR),colour='darkgrey',lty=2) +
   xlab('Population growth rate (r)') +
@@ -389,7 +390,7 @@ Fig3 <- params %>%
  Fig3
 # dev.off()
 
-pdf("Fig3_R1.pdf",width = 8,height = 5)
+pdf(file = "Fig3_R2.pdf",width = 10,height = 5, useDingbats = FALSE)
 Fig3
 dev.off()
 
@@ -406,20 +407,23 @@ dev.off()
   params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
                       header = T,sep = ",")
   
+  dtp <-  params %>%
+    select(rVal,harvConst,tc) %>%
+    filter(tc==0) # doesn't matter which tc because they're all the same
   
-  Fig4 <- params %>%
-  select(rVal,harvConst,tc) %>%
-  filter(tc==0) %>% # doesn't matter which tc because they're all the same
+  #dtp
+  Fig4 <- dtp %>% 
   ggplot(aes(x=rVal)) +
   facet_wrap(~harvConst,scales="free_y") +
-  scale_fill_brewer('Minimum capture size (mm)') +
+  scale_fill_brewer('Minimum \ncapture \nsize (mm)') +
   geom_density(alpha = 0.5,fill='turquoise') +
+  xlim(c(-2,1)) +
   xlab('Population growth rate (r)') +
   ylab('Density') +
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
       
-  pdf("Fig4_R1.pdf",width = 8,height = 5)
+  pdf("Fig4_R2.pdf",width = 10,height = 5, useDingbats = FALSE)
   Fig4
   dev.off()  
   
