@@ -15,7 +15,6 @@ Parameters that are currently simulated are:
 
 
 ```{r runLeslieMC, message = F, warning = F, eval = F}
-<<<<<<< HEAD
 library(ggplot2)
 library(here)
 library(Rmisc)
@@ -117,7 +116,7 @@ runLeslieMC = function(nsims.master, harvest.breaks) {
       apply(.,2,mean) %>%
       t() %>%
       as.data.frame()
-    surv.vector[1] <- 0.064 ## coerce to this value
+    surv.vector[1] <- 0.266 #0.064 ## coerce to this value
     colnames(surv.vector) <- NULL
 
     ## Fecundity
@@ -294,6 +293,8 @@ runLeslieMC = function(nsims.master, harvest.breaks) {
         elastFec_5 = ElastFec[5]
         elastFec_6 = ElastFec[6]
         elastFec_7 = ElastFec[7]
+        elastFec_8 = ElastFec[8]
+        elastFec_9 = ElastFec[9]
         
         elastSurv_1 = ElastSurv[1]
         elastSurv_2 = ElastSurv[2]
@@ -302,6 +303,8 @@ runLeslieMC = function(nsims.master, harvest.breaks) {
         elastSurv_5 = ElastSurv[5]
         elastSurv_6 = ElastSurv[6]
         elastSurv_7 = ElastSurv[7]
+        elastSurv_8 = ElastSurv[8]
+        elastSurv_9 = ElastSurv[9]
         
         elast.vals = c(
           elastFec_1,
@@ -311,13 +314,17 @@ runLeslieMC = function(nsims.master, harvest.breaks) {
           elastFec_5,
           elastFec_6,
           elastFec_7,
+          elastFec_8,
+          elastFec_9,
           elastSurv_1,
           elastSurv_2,
           elastSurv_3,
           elastSurv_4,
           elastSurv_5,
           elastSurv_6,
-          elastSurv_7
+          elastSurv_7,
+          elastSurv_8,
+          elastSurv_9
         )
         # Check on elasticity computations
         elastCheck = sum(ElastFec) + sum(ElastSurv)
@@ -365,15 +372,14 @@ Run & Plot outcomes of Leslie matrix simulation.
 ## On V003
 ## < 10 hours (10K,10,4)
 
-<<<<<<< HEAD
 runID = 'newMort'
-nsims.master = 100
+nsims.master = 10
 ts = format(Sys.time(), "%d%b%Y")
-=======
-runID <- 'testStoke'
-nsims.master <- 1000
-ts <- format(Sys.time(), "%d%b%Y")
->>>>>>> a35c7a1a150dc9d4ddf0f9d0f932c5269c630f98
+
+# runID <- 'testStoke'
+# nsims.master <- 1000
+# ts <- format(Sys.time(), "%d%b%Y")
+# >>>>>>> a35c7a1a150dc9d4ddf0f9d0f932c5269c630f98
 Name <- paste0(runID, '_', ts)
 p <- proc.time()
 test <- runLeslieMC(nsims.master <- nsims.master,
@@ -391,7 +397,16 @@ makeUsStats(test, Name = Name, write.file = T)
 params = read.table(paste0(here::here("Maia code","outputs"),"/",Name,"_params.txt"),
                     header = T,sep = ",")
 with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
+harvs <- unique(params$harvConst)
+par(mfrow=c(2,5))
+for(i in 1:length(harvs)){
+  x <- subset(params,harvConst==harvs[i])
+  hist(x$rVal,main=paste("h rate=",harvs[i]))
+}
 
+params %>%
+  group_by(harvConst,tc) %>%
+  summarize(meanR = mean(rVal))
 #params <- read.table(paste0("outputs/",Name,"_params.txt"), header = T, sep = ',')
 # # with(subset(params, tc == 0 & harvConst == 0.9), hist(rVal))
 # plot(1,type = 'n', xlim = c(-3,3),ylim = c(0,10), yaxt = 'n', ylab = 'mk')
@@ -427,6 +442,8 @@ lifehist %>%
 
 param.plots(test) ## inspect demographic plots
 ```
+
+
 
 
 Save plots in files
