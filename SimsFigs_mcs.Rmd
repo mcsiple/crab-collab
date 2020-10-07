@@ -14,8 +14,6 @@ library(ggsidekick) # just for plots: devtools::install_github("seananderson/ggs
 
 source(here::here("Maia code","paramsScenarios.R")) # load params
 source(here::here("Maia code","sizeMatrix.R")) # generate size transition matrix
-source(here::here("Maia code","miscFunctions.R")) #
-source(here::here("Maia code","runLeslieMC.R"))
 
 crabdat <- read.csv(here::here('Heeia_crabdata_Apr2019.csv'))
 
@@ -26,54 +24,63 @@ crabdat <- read.csv(here::here('Heeia_crabdata_Apr2019.csv'))
 
 The simulations are below; they are commented out because they take a while. To run the sims that are in the paper, un-comment and re-run.
 
+### He'eia fishpond selectivity
 ```{r heeiasel}
-# runID = 'HeeiaSel_1000'
-# nsims.master = 1000
-# ts = format(Sys.time(), "%d%b_%Y")
-# 
-# Name <- paste0(runID, '_', ts)
-# p <- proc.time()
-# test <- runLeslieMC(nsims.master <- nsims.master,
-#                     harvest.breaks = harvest.breaks)
-# proc.time() - p
-# 
-# writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
-# ## Generate summary text files (this happens instead of writing all raw data)
-# makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 
-# makeSADStats(test, Name = Name, write.file = T) 
-# makeElastStats(test, Name = Name, write.file = T) 
-# makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality 
-# 
-# ## quick inspection
-# params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
-#                     header = T,sep = ",")
-# head(params)
+source(here::here("Maia code","miscFunctions_heeia.R")) #
+source(here::here("Maia code","runLeslieMC.R"))
+
+runID = 'HeeiaSel_1000'
+nsims.master = 1000
+ts = format(Sys.time(), "%d%b_%Y") # for running
+Name <- paste0(runID, '_', ts)
+p <- proc.time()
+test <- runLeslieMC(nsims.master <- nsims.master,
+                    harvest.breaks = harvest.breaks)
+proc.time() - p
+
+writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
+## Generate summary text files (this happens instead of writing all raw data)
+makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0
+makeSADStats(test, Name = Name, write.file = T)
+makeElastStats(test, Name = Name, write.file = T)
+makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality
+
+## quick inspection
+params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                     header = T,sep = ",")
+head(params)
 # 
 # dim(table(params$harvConst,params$tc))
+```
+
 #### Different selectivities ("Misty mountains")
-# runID = 'R1_1000'
-# nsims.master = 1000
-# ts = format(Sys.time(), "%d%b_%Y")
-# 
-# Name <- paste0(runID, '_', ts)
-# p <- proc.time()
-# test <- runLeslieMC(nsims.master <- nsims.master,
-#                     harvest.breaks = harvest.breaks)
-# proc.time() - p
-# 
-# writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
-# ## Generate summary text files (this happens instead of writing all raw data)
-# makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0 
-# makeSADStats(test, Name = Name, write.file = T) 
-# makeElastStats(test, Name = Name, write.file = T) 
-# makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality 
-# 
-# ## quick inspection
-# params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
-#                     header = T,sep = ",")
-# head(params)
-# 
-# dim(table(params$harvConst,params$tc))
+```{r}
+source(here::here("Maia code","miscFunctions.R")) #
+source(here::here("Maia code","runLeslieMC.R"))
+
+runID = 'proof_1000'
+nsims.master = 1000
+ts = format(Sys.time(), "%d%b_%Y")
+
+Name <- paste0(runID, '_', ts)
+p <- proc.time()
+test <- runLeslieMC(nsims.master <- nsims.master,
+                    harvest.breaks = harvest.breaks)
+proc.time() - p
+
+writeOutMC(test, Name) ## write inits, lifehist, demography, stable harvest & risk table
+## Generate summary text files (this happens instead of writing all raw data)
+makeParStats(test, tc = 0, Name, write.file = T) ## default tc = 0
+makeSADStats(test, Name = Name, write.file = T)
+makeElastStats(test, Name = Name, write.file = T)
+makeUsStats(test, Name = Name, write.file = T) # stationary harvest mortality
+
+## quick inspection
+params = read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                    header = T,sep = ",")
+head(params)
+
+dim(table(params$harvConst,params$tc))
 ```
 
 ## Figures
@@ -139,21 +146,21 @@ linedf <- data.frame(L = apply(size.bins,MARGIN = 2,FUN = median)) %>%
   mutate(S = 1/(1+exp(-1*log(19)*((L-L50)/(L95-L50)) ))  )
 
 knife_edges <- data.frame(L=seq(min(size.bins[1,]),max(size.bins[2,]),1))%>%
-                      mutate(S1 = ifelse(L<76,0,1),
-                             S2 = ifelse(L<95.5,0,1),
-                             S3 = ifelse(L<152,0,1))
+  mutate(S1 = ifelse(L<76,0,1),
+         S2 = ifelse(L<95.5,0,1),
+         S3 = ifelse(L<152,0,1))
 rulecolors <- RColorBrewer::brewer.pal(n = 4,name = "Blues")
 
 Fig6 <- ggplot(plotdf,aes(x=L,y=S)) +
-        geom_line() +
-        geom_point(data=linedf,aes(x=L,y=S),colour="red") +
-        geom_line(data=knife_edges,aes(x=L,y=S1),colour=rulecolors[2]) +
-        geom_line(data=knife_edges,aes(x=L,y=S2),colour=rulecolors[3]) +
-        geom_line(data=knife_edges,aes(x=L,y=S3),colour=rulecolors[4]) +  
-        theme_classic(base_size = 14) +
-        xlab("Length (mm)") +
-        ylab("Fishery selectivity")
- 
+  geom_line() +
+  geom_point(data=linedf,aes(x=L,y=S),colour="red") +
+  geom_line(data=knife_edges,aes(x=L,y=S1),colour=rulecolors[2]) +
+  geom_line(data=knife_edges,aes(x=L,y=S2),colour=rulecolors[3]) +
+  geom_line(data=knife_edges,aes(x=L,y=S3),colour=rulecolors[4]) +  
+  theme_classic(base_size = 14) +
+  xlab("Length (mm)") +
+  ylab("Fishery selectivity")
+
 #pdf("Fig6.pdf",width = 6,height = 4,useDingbats = F)
 Fig6
 #dev.off()
@@ -162,20 +169,20 @@ Fig6
 
 ### Figure 7
 ```{r}
- runID <- 'HeeiaSel_1000'
-  ts <- '12May_2020'
-  Name <- paste0(runID, '_', ts)
-  
-  # Load outputs
-  params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
-                      header = T,sep = ",")
-  
-  dtp <-  params %>%
-    select(rVal,harvConst,tc) %>%
-    filter(tc==0) # doesn't matter which tc because they're all the same
-  
-  #dtp
-  Fig7 <- dtp %>% 
+runID <- 'HeeiaSel_1000'
+ts <- '12May_2020'
+Name <- paste0(runID, '_', ts)
+
+# Load outputs
+params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                     header = T,sep = ",")
+
+dtp <-  params %>%
+  select(rVal,harvConst,tc) %>%
+  filter(tc==0) # doesn't matter which tc because they're all the same
+
+#dtp
+Fig7 <- dtp %>% 
   ggplot(aes(x=rVal)) +
   facet_wrap(~harvConst,scales="free_y") +
   scale_fill_brewer('Minimum \ncapture \nsize (mm)') +
@@ -185,9 +192,9 @@ Fig6
   ylab('Density') +
   theme_sleek() +
   geom_vline(xintercept = 0,lty=1)
-      
+
 #  pdf("Fig7_R2.pdf",width = 10,height = 5, useDingbats = FALSE)
-  Fig7
+Fig7
 #  dev.off()  
 ```
 
@@ -196,11 +203,9 @@ Fig6
 This figure shows the fixed size limits we tested, including the state size limit. 
 
 ```{r}
-runID = 'R1_1000'
-ts = '12May_2020'
-Name <- paste0(runID, '_', ts)
+Name <- "proof_1000_07Oct_2020"
 params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
-                    header = T,sep = ",")
+                     header = T,sep = ",")
 head(params)
 # Check mean rval at each harvest rate
 ( medians <- params %>%
@@ -221,25 +226,53 @@ Fig8 <- params %>%
   geom_vline(xintercept = 0,lty=1)
 
 # tiff("Fig3_1000_GenSel.tiff",width = 8,height = 5,units = 'in',res=200)
- Fig8
+Fig8
 # dev.off()
 ```
 
 
-### Tidbits for the text
-Normally I would write the text with these variables just effortlessly embedded in the text, but these will have to do. Double check that the `params` object is the one you want before running. 
+### Table 2
 
 ```{r}
+Name <- "proof_1000_07Oct_2020"  # for reading
 params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
                      header = T,sep = ",")
-
-# What is mean unfished growth rate?
-params %>%
+doublingTime <- mean(params$tDouble) 
+statsUsMC <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_StatsUsMC.txt'),
+                        header = T,sep = ",")
+x <- params %>%
   filter(harvConst==0) %>%
   group_by(tc) %>%
   summarize(meanR = mean(rVal),
             meangenTime = mean(genTime),
             meanR0 = mean(Rzero))
+
+unfishedPopGrowthRate <- x$meanR[1]
+minStationaryHarvMort <- statsUsMC$minVal[1]
+meanPerGenGrowthRate <- x$meanR0[1]
+meanGenTime <- x$meangenTime[1]
+
+Table2 <- data.frame( Parameter = c("population doubling time",
+                                    "unfished pop growth rate",
+                                    "min stationary harvest mortality",
+                                    "mean per-gen growth rate",
+                                    "mean generation time"),
+                      `Value from simulation` = c(doublingTime,
+                                                  unfishedPopGrowthRate,
+                                                  minStationaryHarvMort,
+                                                  meanPerGenGrowthRate,
+                                                  meanGenTime))
+Table2
+```
+
+### In-text values
+Normally I would write the text with these variables just effortlessly embedded in the text, but these will have to do. Double check that the `params` object is the one you want before running. 
+
+```{r}
+# Different harvest rates (blue mountains)
+Name <- "KnifeEdge_1000_07Feb2020"  # for reading
+params <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_params.txt'),
+                     header = T,sep = ",")
 
 # what is the mean growth rate at each harvConst for the heeia selectivity case?
 params %>%
@@ -247,13 +280,14 @@ params %>%
   summarize(meanR = mean(rVal),
             meangenTime = mean(genTime),
             meanR0 = mean(Rzero)) 
+
 # what is the pop doubling time?
 mean(params$tDouble) 
 
 # how many combos of harvConst and min cap size?
 length(table(unique(params[,c('tc','harvConst')])))
 
-# which harvest rate produces no negative grwoth rates?
+# which harvest rate produces no negative growth rates?
 params %>%
   group_by(harvConst,tc) %>%
   summarize(min(rVal)) %>%
@@ -266,7 +300,7 @@ params %>%
 crabdat %>%
   filter(Tag_YNNew =="Yes") %>%
   summarize(min.tagged.size = min(CWid_LR_mm))
-  
+
 # What is the avg min survivorship?
 outUs <- read.table(paste0(here::here('Maia code','outputs'),'/',Name,'_outUS.txt'),
                     header = T,sep = ",")
