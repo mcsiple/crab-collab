@@ -145,25 +145,27 @@ plotdf <- data.frame(L=L,S=S)
 linedf <- data.frame(L = apply(size.bins,MARGIN = 2,FUN = median)) %>% 
   mutate(S = 1/(1+exp(-1*log(19)*((L-L50)/(L95-L50)) ))  )
 
-knife_edges <- data.frame(L=seq(min(size.bins[1,]),max(size.bins[2,]),1))%>%
-  mutate(S1 = ifelse(L<76,0,1),
+knife_edges <- data.frame(L=seq(-1,max(size.bins[2,]),1))%>%
+  mutate(S0 = ifelse(L<0,0,1),
+    S1 = ifelse(L<76,0,1),
          S2 = ifelse(L<95.5,0,1),
          S3 = ifelse(L<152,0,1))
-rulecolors <- RColorBrewer::brewer.pal(n = 4,name = "Blues")
+rulecolors <- RColorBrewer::brewer.pal(n = 6,name = "Blues")
 
 Fig6 <- ggplot(plotdf,aes(x=L,y=S)) +
   geom_line() +
   geom_point(data=linedf,aes(x=L,y=S),colour="red") +
-  geom_line(data=knife_edges,aes(x=L,y=S1),colour=rulecolors[2]) +
-  geom_line(data=knife_edges,aes(x=L,y=S2),colour=rulecolors[3]) +
-  geom_line(data=knife_edges,aes(x=L,y=S3),colour=rulecolors[4]) +  
+  geom_line(data=knife_edges,aes(x=L,y=S0),colour=rulecolors[3]) +
+  geom_line(data=knife_edges,aes(x=L,y=S1),colour=rulecolors[4]) +
+  geom_line(data=knife_edges,aes(x=L,y=S2),colour=rulecolors[5]) +
+  geom_line(data=knife_edges,aes(x=L,y=S3),colour=rulecolors[6]) +  
   theme_classic(base_size = 14) +
   xlab("Length (mm)") +
   ylab("Fishery selectivity")
 
-#pdf("Fig6.pdf",width = 6,height = 4,useDingbats = F)
+pdf("Fig6_PROOF.pdf",width = 6,height = 4,useDingbats = F)
 Fig6
-#dev.off()
+dev.off()
 ```
 
 
